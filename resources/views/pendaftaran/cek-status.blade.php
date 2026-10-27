@@ -149,7 +149,6 @@
 @endsection
 
 @section('content')
-{{-- HERO SECTION --}}
 <section class="status-hero">
     <div class="container">
         <h1 class="fw-bold mb-2">Cek Status Pendaftaran</h1>
@@ -160,7 +159,6 @@
 <div class="container pb-5">
     <div class="row justify-content-center">
         <div class="col-lg-9">
-            {{-- SEARCH FORM --}}
             <div class="status-search-card" data-aos="fade-up">
                 <form action="{{ route('pendaftaran.cek-status') }}" method="GET">
                     <label for="no_pendaftaran" class="form-label fw-bold mb-2">
@@ -188,7 +186,6 @@
                 </form>
             </div>
 
-            {{-- SEARCH RESULTS --}}
             @if(request()->filled('no_pendaftaran'))
                 @if($pendaftaran)
                     <div class="status-result-card animate-fade-in" data-aos="fade-up">
@@ -219,9 +216,7 @@
                         </div>
 
                         <div class="p-4 p-md-5">
-                            {{-- TIMELINE --}}
                             <div class="timeline-steps">
-                                {{-- Step 1: Pendaftaran --}}
                                 <div class="timeline-step completed">
                                     <div class="timeline-icon">
                                         <i class="bi bi-file-earmark-check"></i>
@@ -230,7 +225,6 @@
                                     <div class="timeline-desc">{{ $pendaftaran->created_at->format('d M Y') }}</div>
                                 </div>
 
-                                {{-- Step 2: Verifikasi Berkas --}}
                                 <div class="timeline-step {{ in_array($pendaftaran->status, ['diverifikasi', 'diterima', 'ditolak']) ? 'completed' : 'active' }}">
                                     <div class="timeline-icon">
                                         <i class="bi bi-search"></i>
@@ -241,7 +235,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Step 3: Pengumuman Final --}}
                                 <div class="timeline-step {{ $pendaftaran->status === 'diterima' ? 'completed' : ($pendaftaran->status === 'ditolak' ? 'rejected' : '') }}">
                                     <div class="timeline-icon">
                                         @if($pendaftaran->status === 'diterima')
@@ -265,7 +258,6 @@
                                 </div>
                             </div>
 
-                            {{-- STATUS ALERT BANNER --}}
                             @if($pendaftaran->status === 'diterima')
                                 <div class="alert alert-success border-0 shadow-sm rounded-4 p-4 mb-4">
                                     <div class="d-flex align-items-center">
@@ -292,7 +284,6 @@
                                 </div>
                             @endif
 
-                            {{-- CATATAN ADMIN IF ANY --}}
                             @if($pendaftaran->catatan_admin)
                                 <div class="card border-0 bg-light rounded-4 p-3 mb-4">
                                     <div class="fw-bold text-dark mb-1">
@@ -302,7 +293,6 @@
                                 </div>
                             @endif
 
-                            {{-- DATA DETAIL --}}
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="p-3 bg-light rounded-3">
@@ -348,8 +338,8 @@
                                 <a href="{{ route('home') }}" class="btn btn-outline-secondary">
                                     <i class="bi bi-arrow-left me-1"></i> Kembali ke Beranda
                                 </a>
-                                <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" target="_blank" class="btn btn-primary">
-                                    <i class="bi bi-printer me-1"></i> Cetak Ulang Bukti Pendaftaran
+                                <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" class="btn btn-primary">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i> Unduh Bukti Pendaftaran (PDF)
                                 </a>
                             </div>
                         </div>

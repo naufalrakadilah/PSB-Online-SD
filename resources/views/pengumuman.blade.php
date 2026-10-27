@@ -72,7 +72,6 @@
 @endsection
 
 @section('content')
-{{-- HERO SECTION --}}
 <section class="pengumuman-hero">
     <div class="container">
         <span class="badge bg-primary px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase">
@@ -86,7 +85,6 @@
 </section>
 
 <div class="container py-5">
-    {{-- STATS ROW --}}
     <div class="row g-4 mb-5">
         <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
             <div class="stat-card-clean">
@@ -130,7 +128,6 @@
         </div>
     </div>
 
-    {{-- SEARCH & FILTER BAR --}}
     <div class="table-custom-card mb-4" data-aos="fade-up">
         <div class="p-4 border-bottom bg-light">
             <form action="{{ route('pengumuman') }}" method="GET" class="row g-3 align-items-center">
@@ -157,7 +154,6 @@
             </form>
         </div>
 
-        {{-- TABLE --}}
         <div class="table-responsive">
             <table class="table table-hover table-psb mb-0">
                 <thead>
@@ -232,7 +228,6 @@
             </table>
         </div>
 
-        {{-- PAGINATION --}}
         @if($hasil->hasPages())
             <div class="p-4 border-top bg-light d-flex justify-content-between align-items-center flex-wrap">
                 <small class="text-muted">
@@ -245,7 +240,6 @@
         @endif
     </div>
 
-    {{-- INFO DAFTAR ULANG --}}
     <div class="card border-0 shadow-sm rounded-4 p-4 bg-primary text-white" data-aos="fade-up">
         <div class="row align-items-center">
             <div class="col-md-9">

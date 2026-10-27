@@ -4,7 +4,6 @@
 @section('page-title', 'Dashboard Ringkasan PSB')
 
 @section('content')
-{{-- ALERT NOTIFICATION ERROR (Kompetensi J.620100.044.01) --}}
 @if(isset($alertError))
     <div class="alert alert-danger border-0 shadow-sm rounded-4 p-4 mb-4">
         <div class="d-flex align-items-center">
@@ -17,9 +16,7 @@
     </div>
 @endif
 
-{{-- TOP STAT CARDS --}}
 <div class="row g-3 mb-4">
-    {{-- Total --}}
     <div class="col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -33,7 +30,6 @@
         </div>
     </div>
 
-    {{-- Menunggu --}}
     <div class="col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -49,7 +45,6 @@
         </div>
     </div>
 
-    {{-- Diverifikasi --}}
     <div class="col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -65,7 +60,6 @@
         </div>
     </div>
 
-    {{-- Diterima --}}
     <div class="col-sm-6 col-xl-3">
         <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -80,7 +74,6 @@
     </div>
 </div>
 
-{{-- RESOURCE MONITORING WIDGET (Kompetensi J.620100.045.01) --}}
 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white overflow-hidden">
     <div class="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="d-flex align-items-center gap-2">
@@ -105,7 +98,7 @@
                 <small class="text-white-50">database.sqlite</small>
             </div>
             <div class="col-6 col-md-3 border-end border-secondary">
-                <small class="text-white-50 d-block mb-1">Berkas Terupload</small>
+                <small class="text-white-50 d-block mb-1">Ukuran Storage</small>
                 <h4 class="fw-bold mb-0 text-success">{{ $resourceInfo['storage_size'] ?? 'N/A' }}</h4>
                 <small class="text-white-50">storage/app/public</small>
             </div>
@@ -119,7 +112,6 @@
 </div>
 
 <div class="row g-4 mb-4">
-    {{-- PENDAFTAR TERBARU TABLE --}}
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
             <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
@@ -177,7 +169,6 @@
         </div>
     </div>
 
-    {{-- GENDER & KUOTA WIDGET --}}
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-3">
             <h6 class="fw-bold mb-3 text-dark">
@@ -220,7 +211,6 @@
 
             <hr>
 
-            {{-- 17 KOMPETENSI QUICK BUTTON --}}
             <button class="btn btn-outline-primary w-100 py-2 rounded-3 fw-semibold small" data-bs-toggle="modal" data-bs-target="#kompetensiModal">
                 <i class="bi bi-award-fill me-1"></i> Cek 17 Unit Kompetensi SKKNI
             </button>
@@ -228,7 +218,6 @@
     </div>
 </div>
 
-{{-- MODAL 17 UNIT KOMPETENSI (ASSESSMENT PROOF) --}}
 <div class="modal fade" id="kompetensiModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow">
@@ -349,7 +338,7 @@
                             <span class="badge bg-success-subtle text-success">Terpenuhi</span>
                         </div>
                         <h6 class="mb-1 fw-bold">Menerapkan Pemrograman Multimedia</h6>
-                        <small class="text-muted">Implementasi: Upload berkas Foto Siswa (JPEG/PNG), Akta Kelahiran, KK, Ijazah TK (PDF/Image) dengan validasi ukuran & mime-type.</small>
+                        <small class="text-muted">Implementasi: Generate bukti pendaftaran dalam format dokumen PDF (A4) menggunakan library DomPDF.</small>
                     </div>
 
                     <div class="list-group-item px-0 py-2">

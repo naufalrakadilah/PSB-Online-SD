@@ -116,8 +116,8 @@
             </p>
 
             <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
-                <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" class="btn-primary-psb" target="_blank" id="btn-cetak-bukti">
-                    <i class="bi bi-printer"></i> Cetak Bukti
+                <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" class="btn-primary-psb" id="btn-cetak-bukti">
+                    <i class="bi bi-file-earmark-pdf"></i> Unduh Bukti (PDF)
                 </a>
                 <a href="{{ route('pendaftaran.cek-status') }}?no_pendaftaran={{ $pendaftaran->no_pendaftaran }}" class="btn-outline-psb" id="btn-cek-status">
                     <i class="bi bi-search"></i> Cek Status

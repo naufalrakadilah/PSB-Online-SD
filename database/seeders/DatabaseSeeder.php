@@ -9,10 +9,6 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     * Membuat akun admin default dan data contoh pendaftar.
-     */
     public function run(): void
     {
         $this->call([

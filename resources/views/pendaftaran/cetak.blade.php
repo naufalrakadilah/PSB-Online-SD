@@ -2,105 +2,87 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bukti Pendaftaran - {{ $pendaftaran->no_pendaftaran }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; padding: 2rem; color: #1E293B; background: white; }
+        @page { margin: 1.5cm; }
+        * { margin: 0; padding: 0; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1E293B; }
 
-        .print-container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 3px solid #4F46E5; padding-bottom: 14px; margin-bottom: 18px; }
+        .header h1 { font-size: 13px; font-weight: bold; color: #4F46E5; text-transform: uppercase; letter-spacing: 1px; }
+        .header h2 { font-size: 18px; font-weight: bold; margin-top: 4px; }
+        .header p { color: #64748B; font-size: 10px; margin-top: 4px; }
 
-        .header { text-align: center; border-bottom: 3px solid #4F46E5; padding-bottom: 1.5rem; margin-bottom: 2rem; }
-        .header h1 { font-size: 1.3rem; font-weight: 800; color: #4F46E5; text-transform: uppercase; letter-spacing: 0.05em; }
-        .header h2 { font-size: 1.6rem; font-weight: 800; margin-top: 0.3rem; }
-        .header p { color: #64748B; font-size: 0.85rem; margin-top: 0.5rem; }
+        .no-reg { text-align: center; background: #F1F5F9; padding: 10px; border-radius: 6px; margin-bottom: 18px; }
+        .no-reg .label { color: #64748B; font-size: 9px; font-weight: bold; text-transform: uppercase; }
+        .no-reg .number { font-size: 20px; font-weight: bold; color: #4F46E5; letter-spacing: 1px; margin-top: 2px; }
 
-        .no-reg { text-align: center; background: #F1F5F9; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
-        .no-reg .label { color: #64748B; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        .no-reg .number { font-size: 1.8rem; font-weight: 800; color: #4F46E5; letter-spacing: 0.05em; }
-
-        .section { margin-bottom: 1.5rem; }
-        .section-title { font-size: 0.9rem; font-weight: 700; color: #4F46E5; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #E2E8F0; text-transform: uppercase; letter-spacing: 0.03em; }
+        .section { margin-bottom: 14px; }
+        .section-title { font-size: 11px; font-weight: bold; color: #4F46E5; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #E2E8F0; text-transform: uppercase; }
 
         table { width: 100%; border-collapse: collapse; }
-        table td { padding: 0.4rem 0; font-size: 0.85rem; vertical-align: top; }
-        table td:first-child { width: 200px; color: #64748B; font-weight: 500; }
-        table td:nth-child(2) { width: 15px; text-align: center; }
-        table td:last-child { font-weight: 600; }
+        table td { padding: 3px 0; vertical-align: top; }
+        table td.label { width: 170px; color: #64748B; }
+        table td.colon { width: 12px; text-align: center; }
+        table td.value { font-weight: bold; }
 
-        .status-box { text-align: center; background: #FEF3C7; border: 1px solid #FDE68A; padding: 0.75rem; border-radius: 8px; margin: 1.5rem 0; }
-        .status-box .status-label { font-weight: 700; color: #92400E; text-transform: uppercase; font-size: 0.85rem; }
+        .status-box { text-align: center; background: #FEF3C7; border: 1px solid #FDE68A; padding: 8px; border-radius: 6px; margin: 16px 0; }
+        .status-box .status-label { font-weight: bold; color: #92400E; text-transform: uppercase; }
 
-        .footer-print { text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #E2E8F0; }
-        .footer-print p { color: #94A3B8; font-size: 0.75rem; }
-
-        .print-btn { background: #4F46E5; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; margin-bottom: 2rem; display: block; margin-left: auto; margin-right: auto; }
-        .print-btn:hover { background: #3730A3; }
-
-        @media print {
-            .print-btn { display: none !important; }
-            body { padding: 1rem; }
-        }
+        .footer { text-align: center; margin-top: 18px; padding-top: 12px; border-top: 1px solid #E2E8F0; color: #94A3B8; font-size: 9px; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <div class="print-container">
-        <button class="print-btn" onclick="window.print()">
-            🖨️ Cetak Bukti Pendaftaran
-        </button>
+    <div class="header">
+        <h1>SD Negeri Nusantara</h1>
+        <h2>Bukti Pendaftaran Siswa Baru</h2>
+        <p>Tahun Ajaran {{ $pendaftaran->tahun_ajaran }}</p>
+    </div>
 
-        <div class="header">
-            <h1>📚 SD Negeri Nusantara</h1>
-            <h2>Bukti Pendaftaran Siswa Baru</h2>
-            <p>Tahun Ajaran {{ $pendaftaran->tahun_ajaran }}</p>
-        </div>
+    <div class="no-reg">
+        <div class="label">Nomor Pendaftaran</div>
+        <div class="number">{{ $pendaftaran->no_pendaftaran }}</div>
+    </div>
 
-        <div class="no-reg">
-            <div class="label">Nomor Pendaftaran</div>
-            <div class="number">{{ $pendaftaran->no_pendaftaran }}</div>
-        </div>
+    <div class="section">
+        <div class="section-title">Data Calon Siswa</div>
+        <table>
+            <tr><td class="label">Nama Lengkap</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_lengkap }}</td></tr>
+            <tr><td class="label">NIK</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nik }}</td></tr>
+            <tr><td class="label">Tempat, Tanggal Lahir</td><td class="colon">:</td><td class="value">{{ $pendaftaran->tempat_lahir }}, {{ $pendaftaran->tanggal_lahir->format('d/m/Y') }} ({{ $pendaftaran->umur }} tahun)</td></tr>
+            <tr><td class="label">Jenis Kelamin</td><td class="colon">:</td><td class="value">{{ $pendaftaran->jenis_kelamin }}</td></tr>
+            <tr><td class="label">Tinggi Badan</td><td class="colon">:</td><td class="value">{{ $pendaftaran->tinggi_badan ? $pendaftaran->tinggi_badan.' cm' : '-' }}</td></tr>
+            <tr><td class="label">Agama</td><td class="colon">:</td><td class="value">{{ $pendaftaran->agama }}</td></tr>
+            <tr><td class="label">Alamat Lengkap</td><td class="colon">:</td><td class="value">{{ $pendaftaran->alamat }}</td></tr>
+            <tr><td class="label">Asal Sekolah (TK)</td><td class="colon">:</td><td class="value">{{ $pendaftaran->asal_sekolah ?: '-' }}</td></tr>
+        </table>
+    </div>
 
-        <div class="section">
-            <div class="section-title">Data Calon Siswa</div>
-            <table>
-                <tr><td>Nama Lengkap</td><td>:</td><td>{{ $pendaftaran->nama_lengkap }}</td></tr>
-                <tr><td>NISN</td><td>:</td><td>{{ $pendaftaran->nisn ?: '-' }}</td></tr>
-                <tr><td>NIK</td><td>:</td><td>{{ $pendaftaran->nik }}</td></tr>
-                <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td>{{ $pendaftaran->tempat_lahir }}, {{ $pendaftaran->tanggal_lahir->format('d/m/Y') }}</td></tr>
-                <tr><td>Jenis Kelamin</td><td>:</td><td>{{ $pendaftaran->jenis_kelamin }}</td></tr>
-                <tr><td>Agama</td><td>:</td><td>{{ $pendaftaran->agama }}</td></tr>
-                <tr><td>Alamat</td><td>:</td><td>{{ $pendaftaran->alamat_lengkap }}</td></tr>
-                <tr><td>Asal Sekolah (TK)</td><td>:</td><td>{{ $pendaftaran->asal_sekolah ?: '-' }}</td></tr>
-            </table>
-        </div>
+    <div class="section">
+        <div class="section-title">Data Orang Tua / Wali</div>
+        <table>
+            <tr><td class="label">Nama Ayah</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_ayah }}</td></tr>
+            <tr><td class="label">Pekerjaan Ayah</td><td class="colon">:</td><td class="value">{{ $pendaftaran->pekerjaan_ayah ?: '-' }}</td></tr>
+            <tr><td class="label">No. HP Ayah</td><td class="colon">:</td><td class="value">{{ $pendaftaran->no_hp_ayah ?: '-' }}</td></tr>
+            <tr><td class="label">Nama Ibu</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_ibu }}</td></tr>
+            <tr><td class="label">Pekerjaan Ibu</td><td class="colon">:</td><td class="value">{{ $pendaftaran->pekerjaan_ibu ?: '-' }}</td></tr>
+            <tr><td class="label">No. HP Ibu</td><td class="colon">:</td><td class="value">{{ $pendaftaran->no_hp_ibu ?: '-' }}</td></tr>
+            @if($pendaftaran->nama_wali)
+                <tr><td class="label">Nama Wali</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_wali }}</td></tr>
+                <tr><td class="label">Pekerjaan Wali</td><td class="colon">:</td><td class="value">{{ $pendaftaran->pekerjaan_wali ?: '-' }}</td></tr>
+                <tr><td class="label">No. HP Wali</td><td class="colon">:</td><td class="value">{{ $pendaftaran->no_hp_wali ?: '-' }}</td></tr>
+            @endif
+        </table>
+    </div>
 
-        <div class="section">
-            <div class="section-title">Data Orang Tua / Wali</div>
-            <table>
-                <tr><td>Nama Ayah</td><td>:</td><td>{{ $pendaftaran->nama_ayah }}</td></tr>
-                <tr><td>Pekerjaan Ayah</td><td>:</td><td>{{ $pendaftaran->pekerjaan_ayah ?: '-' }}</td></tr>
-                <tr><td>No. HP Ayah</td><td>:</td><td>{{ $pendaftaran->no_hp_ayah ?: '-' }}</td></tr>
-                <tr><td>Nama Ibu</td><td>:</td><td>{{ $pendaftaran->nama_ibu }}</td></tr>
-                <tr><td>Pekerjaan Ibu</td><td>:</td><td>{{ $pendaftaran->pekerjaan_ibu ?: '-' }}</td></tr>
-                <tr><td>No. HP Ibu</td><td>:</td><td>{{ $pendaftaran->no_hp_ibu ?: '-' }}</td></tr>
-                @if($pendaftaran->nama_wali)
-                <tr><td>Nama Wali</td><td>:</td><td>{{ $pendaftaran->nama_wali }}</td></tr>
-                <tr><td>Pekerjaan Wali</td><td>:</td><td>{{ $pendaftaran->pekerjaan_wali ?: '-' }}</td></tr>
-                <tr><td>No. HP Wali</td><td>:</td><td>{{ $pendaftaran->no_hp_wali ?: '-' }}</td></tr>
-                @endif
-            </table>
-        </div>
+    <div class="status-box">
+        <div class="status-label">Status: {{ $pendaftaran->status_badge['label'] }}</div>
+    </div>
 
-        <div class="status-box">
-            <div class="status-label">Status: {{ $pendaftaran->status_badge['label'] }}</div>
-        </div>
-
-        <div class="footer-print">
-            <p>Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}</p>
-            <p>Dokumen ini digenerate secara otomatis oleh sistem PSB Online SD Negeri Nusantara.</p>
-            <p>Harap simpan nomor pendaftaran untuk keperluan pengecekan status.</p>
-        </div>
+    <div class="footer">
+        Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}<br>
+        Dokumen ini digenerate secara otomatis oleh sistem PSB Online SD Negeri Nusantara.<br>
+        Harap simpan nomor pendaftaran untuk keperluan pengecekan status.
     </div>
 </body>
 </html>

@@ -6,41 +6,10 @@ use App\Models\Pendaftaran;
 use Carbon\Carbon;
 use InvalidArgumentException;
 
-/**
- * StuntingHelper - Layanan penghitungan Z-score antropometri WHO 2007
- * dan penentuan status stunting anak.
- *
- * Rumus Z-score (Standar WHO):
- * Z = (X - mu) / sigma
- *
- * Keterangan:
- * - Z     = Nilai Z-score
- * - X     = Tinggi badan anak yang diukur (cm)
- * - mu    = Nilai median tinggi badan anak standar WHO (cm)
- * - sigma = Simpangan baku standar WHO (cm)
- *
- * Kategori Stunting (Berdasarkan Z-score TB/U):
- * - Z < -3.0 SD        : Sangat Pendek (Severely Stunted) -> Stunting
- * - -3.0 s/d -2.0 SD   : Pendek (Stunted)                 -> Stunting
- * - -2.0 < Z <= 2.0 SD : Normal                           -> Tidak Stunting
- * - Z > 2.0 SD         : Tinggi                           -> Tidak Stunting
- *
- * Kompetensi:
- * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
- * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
- * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
- */
 class StuntingHelper
 {
-    /**
-     * Tabel Referensi WHO 2007 Median dan Simpangan Baku (SD)
-     * untuk anak usia masuk sekolah dasar (5 tahun 1 bulan, 6 tahun, 7 tahun).
-     *
-     * @var array<string, array<string, mixed>>
-     */
     public const WHO_STANDARDS = [
         '5 tahun 1 bulan' => [
-            'bulan' => 61,
             'Laki-laki' => [
                 'median' => 110.3,
                 'sd' => 4.59,
@@ -51,7 +20,6 @@ class StuntingHelper
             ],
         ],
         '6 tahun' => [
-            'bulan' => 72,
             'Laki-laki' => [
                 'median' => 116.0,
                 'sd' => 4.93,
@@ -62,7 +30,6 @@ class StuntingHelper
             ],
         ],
         '7 tahun' => [
-            'bulan' => 84,
             'Laki-laki' => [
                 'median' => 121.7,
                 'sd' => 5.29,
@@ -74,20 +41,6 @@ class StuntingHelper
         ],
     ];
 
-    /**
-     * Mengukur tinggi badan anak apakah stunting atau tidak (naufalfunction).
-     *
-     * Mendukung berbagai bentuk pemanggilan:
-     * 1. Direct: naufalfunction(80, 86, 3) -> (tinggi, median, sd)
-     * 2. Standar WHO: naufalfunction(105, '5 tahun 1 bulan', 'Laki-laki')
-     * 3. Standar WHO (numerik): naufalfunction(105, 6, 'Perempuan')
-     * 4. Model: naufalfunction(110, $pendaftaran) -> umur & gender diambil dari data pendaftar
-     *
-     * @param  mixed  $tinggi  Tinggi badan (cm)
-     * @param  mixed  $param2  Nilai median (float) ATAU umur anak (string/int) ATAU model Pendaftaran
-     * @param  mixed  $param3  Nilai simpangan baku (float) ATAU jenis kelamin (string)
-     * @param  bool  $asArray  Jika true, hasil dikembalikan dalam bentuk array asosiatif murni
-     */
     public static function naufalfunction(
         mixed $tinggi,
         mixed $param2 = null,
@@ -106,10 +59,8 @@ class StuntingHelper
             throw new InvalidArgumentException('Simpangan baku (sigma) harus bernilai lebih besar dari 0.');
         }
 
-        // Rumus Z-score: Z = (X - mu) / sigma
         $zScore = round(($tinggiBadan - $median) / $sd, 2);
 
-        // Penentuan status dan kategori stunting berdasarkan standar WHO
         if ($zScore < -3.0) {
             $isStunting = true;
             $status = 'Stunting';
@@ -167,14 +118,8 @@ class StuntingHelper
         return $asArray ? $result->toArray() : $result;
     }
 
-    /**
-     * Mem-parsing parameter yang fleksibel ke bentuk standar.
-     *
-     * @return array{tinggi: float, median: float, sd: float, umur: ?string, jenis_kelamin: ?string}
-     */
     protected static function parseArguments(mixed $p1, mixed $p2, mixed $p3): array
     {
-        // Kasus 1: Parameter 2 adalah model Pendaftaran: (tinggi, $pendaftaran)
         if ($p2 instanceof Pendaftaran) {
             $tinggi = (float) $p1;
             $lookup = self::lookupStandardFromPendaftaran($p2);
@@ -188,8 +133,6 @@ class StuntingHelper
             ];
         }
 
-        // Kasus 2: Tiga parameter numerik langsung: (tinggi, median, sd)
-        // Contoh Gambar 1: naufalfunction(80, 86, 3)
         if (is_numeric($p1) && is_numeric($p2) && is_numeric($p3)) {
             return [
                 'tinggi' => (float) $p1,
@@ -200,8 +143,6 @@ class StuntingHelper
             ];
         }
 
-        // Kasus 3: Parameter dengan umur dan jenis kelamin: (tinggi, umur, jenis_kelamin)
-        // Contoh Gambar 2: naufalfunction(105, '5 tahun 1 bulan', 'Laki-laki')
         $lookup = self::lookupWhoStandard($p2, $p3);
 
         return [
@@ -213,12 +154,7 @@ class StuntingHelper
         ];
     }
 
-    /**
-     * Mencari nilai median dan simpangan baku standar WHO 2007 berdasarkan umur dan jenis kelamin.
-     *
-     * @return array{median: float, sd: float, umur_key: string, jenis_kelamin: string}
-     */
-    public static function lookupWhoStandard(mixed $umur, mixed $jenisKelamin): array
+    protected static function lookupWhoStandard(mixed $umur, mixed $jenisKelamin): array
     {
         $genderNormalized = self::normalizeGender((string) $jenisKelamin);
         $ageKey = self::normalizeAge($umur);
@@ -233,12 +169,6 @@ class StuntingHelper
         ];
     }
 
-    /**
-     * Normalisasi string atau angka umur ke kunci tabel referensi.
-     *
-     * Contoh: 7 / '7 tahun' -> '7 tahun', '72 bulan' -> '6 tahun', '5 tahun 1 bulan' -> '5 tahun 1 bulan'.
-     * Angka di atas 12 tanpa kata "tahun" dianggap sebagai bulan.
-     */
     public static function normalizeAge(mixed $umur): string
     {
         if (is_null($umur)) {
@@ -268,26 +198,20 @@ class StuntingHelper
         return self::ageKeyFromMonths($totalBulan);
     }
 
-    /**
-     * Menentukan kunci tabel referensi WHO dari umur dalam bulan.
-     */
     protected static function ageKeyFromMonths(float $totalBulan): string
     {
-        if ($totalBulan <= 66) { // ~5 tahun 6 bulan ke bawah
+        if ($totalBulan <= 66) {
             return '5 tahun 1 bulan';
         }
 
-        if ($totalBulan >= 79) { // ~6 tahun 7 bulan ke atas
+        if ($totalBulan >= 79) {
             return '7 tahun';
         }
 
         return '6 tahun';
     }
 
-    /**
-     * Normalisasi string jenis kelamin ('Laki-laki' atau 'Perempuan').
-     */
-    public static function normalizeGender(?string $gender): string
+    protected static function normalizeGender(?string $gender): string
     {
         if (! $gender) {
             return 'Laki-laki';
@@ -302,11 +226,6 @@ class StuntingHelper
         return 'Laki-laki';
     }
 
-    /**
-     * Mendapatkan standar WHO dari model pendaftaran berdasarkan tanggal lahir dan gender.
-     *
-     * @return array{median: float, sd: float, umur_key: string, jenis_kelamin: string}
-     */
     protected static function lookupStandardFromPendaftaran(Pendaftaran $pendaftaran): array
     {
         $gender = $pendaftaran->jenis_kelamin ?? 'Laki-laki';

@@ -11,24 +11,14 @@
 </div>
 
 <div class="row g-4">
-    {{-- LEFT COLUMN: STUDENT & PARENTS DATA --}}
     <div class="col-lg-8">
-        {{-- PROFILE HEADER CARD --}}
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
             <div class="d-flex align-items-center gap-4 flex-wrap">
                 <div>
-                    @if($pendaftaran->foto_siswa)
-                        <img src="{{ asset('storage/' . $pendaftaran->foto_siswa) }}" 
-                             alt="Foto Siswa" 
-                             class="rounded-4 object-fit-cover shadow-sm border" 
-                             style="width: 100px; height: 125px;">
-                    @else
-                        <div class="rounded-4 bg-light border d-flex flex-column align-items-center justify-content-center text-muted" 
-                             style="width: 100px; height: 125px;">
-                            <i class="bi bi-person-bounding-box fs-1"></i>
-                            <span class="small" style="font-size: 0.65rem;">Tanpa Foto</span>
-                        </div>
-                    @endif
+                    <div class="rounded-4 bg-light border d-flex align-items-center justify-content-center text-muted"
+                         style="width: 100px; height: 125px;">
+                        <i class="bi bi-person-bounding-box fs-1"></i>
+                    </div>
                 </div>
 
                 <div class="flex-grow-1">
@@ -38,7 +28,7 @@
                     </div>
                     <h3 class="fw-bold mb-1 text-dark">{{ $pendaftaran->nama_lengkap }}</h3>
                     <p class="text-muted small mb-2">
-                        <i class="bi bi-geo-alt me-1"></i> {{ $pendaftaran->alamat }}, {{ $pendaftaran->kota ?? 'Kota Nusantara' }}
+                        <i class="bi bi-geo-alt me-1"></i> {{ $pendaftaran->alamat }}
                     </p>
                     <div class="d-flex gap-2">
                         @if($pendaftaran->status === 'menunggu')
@@ -62,14 +52,13 @@
                 </div>
 
                 <div>
-                    <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" target="_blank" class="btn btn-outline-primary">
-                        <i class="bi bi-printer me-1"></i> Cetak Bukti
+                    <a href="{{ route('pendaftaran.cetak', $pendaftaran->no_pendaftaran) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Unduh Bukti (PDF)
                     </a>
                 </div>
             </div>
         </div>
 
-        {{-- DETAIL BIODATA --}}
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
             <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">
                 <i class="bi bi-person-lines-fill text-primary me-2"></i>Data Pribadi Calon Siswa
@@ -78,10 +67,6 @@
                 <div class="col-sm-6">
                     <small class="text-muted d-block">Nomor Induk Kependudukan (NIK)</small>
                     <span class="fw-semibold"><code>{{ $pendaftaran->nik }}</code></span>
-                </div>
-                <div class="col-sm-6">
-                    <small class="text-muted d-block">NISN (jika ada)</small>
-                    <span class="fw-semibold">{{ $pendaftaran->nisn ?? '-' }}</span>
                 </div>
                 <div class="col-sm-6">
                     <small class="text-muted d-block">Tempat, Tanggal Lahir</small>
@@ -100,7 +85,7 @@
                 </div>
                 <div class="col-sm-12">
                     <small class="text-muted d-block">Alamat Lengkap</small>
-                    <span class="fw-semibold">{{ $pendaftaran->alamat }} RT {{ $pendaftaran->rt ?? '-' }} / RW {{ $pendaftaran->rw ?? '-' }}, Kel. {{ $pendaftaran->kelurahan ?? '-' }}, Kec. {{ $pendaftaran->kecamatan ?? '-' }}, {{ $pendaftaran->kota ?? '-' }} {{ $pendaftaran->kode_pos ? '('.$pendaftaran->kode_pos.')' : '' }}</span>
+                    <span class="fw-semibold">{{ $pendaftaran->alamat }}</span>
                 </div>
                 <div class="col-sm-6">
                     <small class="text-muted d-block">Asal Sekolah (TK / RA / PAUD)</small>
@@ -109,7 +94,6 @@
             </div>
         </div>
 
-        {{-- PEMERIKSAAN STUNTING SISWA (naufalfunction) --}}
         @php
             $usiaBulan = (int) \Carbon\Carbon::parse($pendaftaran->tanggal_lahir)->diffInMonths(now());
             $defaultAgeCategory = \App\Helpers\StuntingHelper::normalizeAge($usiaBulan.' bulan');
@@ -175,7 +159,6 @@
                     </div>
                 </div>
 
-                {{-- Preset Contoh Cepat --}}
                 <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                     <span class="small text-muted fw-semibold">Contoh Cepat:</span>
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" onclick="setTinggi(80, 86, 3)">
@@ -192,7 +175,6 @@
                 <input type="hidden" name="sd" id="custom_sd" value="">
             </form>
 
-            {{-- HASIL PENGUKURAN STUNTING --}}
             <div id="stuntingResultBox" class="{{ $sessionResult ? '' : 'd-none' }} mt-3">
                 @php
                     $isStunting = $sessionResult['is_stunting'] ?? false;
@@ -230,7 +212,6 @@
             </div>
         </div>
 
-        {{-- ORANG TUA --}}
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
             <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">
                 <i class="bi bi-people-fill text-primary me-2"></i>Data Orang Tua / Wali
@@ -264,89 +245,8 @@
                 @endif
             </div>
         </div>
-
-        {{-- MULTIMEDIA DOCUMENTS (Kompetensi J.620100.030.02) --}}
-        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-file-earmark-medical-fill text-primary me-2"></i>Dokumen Terupload
-                </h5>
-                <span class="badge-competency">J.620100.030.02 (Multimedia)</span>
-            </div>
-
-            <div class="row g-3">
-                {{-- Foto Siswa --}}
-                <div class="col-sm-6 col-md-3">
-                    <div class="card h-100 border p-2 text-center rounded-3">
-                        <small class="fw-bold mb-2 text-dark">Foto Siswa</small>
-                        @if($pendaftaran->foto_siswa)
-                            <a href="{{ asset('storage/' . $pendaftaran->foto_siswa) }}" target="_blank">
-                                <img src="{{ asset('storage/' . $pendaftaran->foto_siswa) }}" class="img-fluid rounded mb-2" style="max-height: 120px; object-fit: cover;">
-                            </a>
-                            <a href="{{ asset('storage/' . $pendaftaran->foto_siswa) }}" target="_blank" class="btn btn-sm btn-light w-100">
-                                <i class="bi bi-box-arrow-up-right"></i> Buka Foto
-                            </a>
-                        @else
-                            <div class="py-4 text-muted small">Tidak Diunggah</div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Akta Kelahiran --}}
-                <div class="col-sm-6 col-md-3">
-                    <div class="card h-100 border p-2 text-center rounded-3">
-                        <small class="fw-bold mb-2 text-dark">Akta Kelahiran</small>
-                        @if($pendaftaran->akta_kelahiran)
-                            <div class="py-3 text-primary">
-                                <i class="bi bi-file-earmark-pdf fs-1"></i>
-                            </div>
-                            <a href="{{ asset('storage/' . $pendaftaran->akta_kelahiran) }}" target="_blank" class="btn btn-sm btn-light w-100 mt-auto">
-                                <i class="bi bi-eye"></i> Lihat Berkas
-                            </a>
-                        @else
-                            <div class="py-4 text-muted small">Tidak Diunggah</div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Kartu Keluarga --}}
-                <div class="col-sm-6 col-md-3">
-                    <div class="card h-100 border p-2 text-center rounded-3">
-                        <small class="fw-bold mb-2 text-dark">Kartu Keluarga (KK)</small>
-                        @if($pendaftaran->kartu_keluarga)
-                            <div class="py-3 text-info">
-                                <i class="bi bi-file-earmark-text fs-1"></i>
-                            </div>
-                            <a href="{{ asset('storage/' . $pendaftaran->kartu_keluarga) }}" target="_blank" class="btn btn-sm btn-light w-100 mt-auto">
-                                <i class="bi bi-eye"></i> Lihat Berkas
-                            </a>
-                        @else
-                            <div class="py-4 text-muted small">Tidak Diunggah</div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Ijazah TK --}}
-                <div class="col-sm-6 col-md-3">
-                    <div class="card h-100 border p-2 text-center rounded-3">
-                        <small class="fw-bold mb-2 text-dark">Ijazah / Surat TK</small>
-                        @if($pendaftaran->ijazah_tk)
-                            <div class="py-3 text-success">
-                                <i class="bi bi-file-earmark-check fs-1"></i>
-                            </div>
-                            <a href="{{ asset('storage/' . $pendaftaran->ijazah_tk) }}" target="_blank" class="btn btn-sm btn-light w-100 mt-auto">
-                                <i class="bi bi-eye"></i> Lihat Berkas
-                            </a>
-                        @else
-                            <div class="py-4 text-muted small">Tidak Diunggah</div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    {{-- RIGHT COLUMN: STATUS VERIFICATION FORM --}}
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 sticky-top" style="top: 90px;">
             <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">

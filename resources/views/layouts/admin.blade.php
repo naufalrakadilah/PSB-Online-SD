@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Panel - PSB Online SD')</title>
 
-    {{-- Fonts & Icons --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -150,7 +149,6 @@
 </head>
 <body>
 
-    {{-- SIDEBAR --}}
     <aside class="admin-sidebar" id="adminSidebar">
         <div>
             <a href="{{ route('admin.dashboard') }}" class="admin-brand">
@@ -176,6 +174,11 @@
                     <span>Data Pendaftar</span>
                 </a>
 
+                <a href="{{ route('admin.akun') }}" class="nav-admin-link {{ request()->routeIs('admin.akun*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>Akun Admin</span>
+                </a>
+
                 <div class="text-uppercase text-white-50 small fw-bold px-3 mt-4 mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">Aplikasi Publik</div>
 
                 <a href="{{ route('home') }}" target="_blank" class="nav-admin-link">
@@ -190,7 +193,6 @@
             </div>
         </div>
 
-        {{-- USER & LOGOUT --}}
         <div class="pt-3 border-top border-secondary-subtle">
             <div class="d-flex align-items-center justify-content-between px-2">
                 <div class="d-flex align-items-center gap-2">
@@ -212,9 +214,7 @@
         </div>
     </aside>
  
-    {{-- MAIN CONTENT WRAPPER --}}
     <div class="admin-main">
-        {{-- TOPBAR --}}
         <header class="admin-topbar">
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-sm btn-light d-lg-none" onclick="document.getElementById('adminSidebar').classList.toggle('show')">
@@ -233,9 +233,7 @@
             </div>
         </header>
 
-        {{-- CONTENT --}}
         <main class="admin-content">
-            {{-- FLASH ALERTS --}}
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
@@ -254,7 +252,6 @@
         </main>
     </div>
 
-    {{-- Scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
 </body>

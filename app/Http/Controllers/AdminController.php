@@ -7,26 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
-/**
- * AdminController - Controller untuk panel admin PSB Online.
- *
- * Kompetensi:
- * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
- * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
- * - J.620100.020.02 - Menggunakan SQL
- * - J.620100.021.02 - Menerapkan Akses Basis Data
- * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
- * - J.620100.025.02 - Melakukan Debugging
- * - J.620100.044.01 - Menerapkan Alert Notification
- * - J.620100.045.01 - Melakukan Pemantauan Resource
- */
 class AdminController extends Controller
 {
-    /**
-     * Menampilkan halaman login admin.
-     */
     public function showLogin()
     {
         if (Auth::check()) {
@@ -36,11 +19,6 @@ class AdminController extends Controller
         return view('admin.login');
     }
 
-    /**
-     * Proses login admin.
-     *
-     * Kompetensi J.620100.025.02 - Debugging & Error Handling
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -49,7 +27,21 @@ class AdminController extends Controller
         ]);
 
         try {
-            if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            if (Auth::validate($credentials)) {
+                $user = Auth::getLastAttempted();
+
+                if (! $user->isVerified()) {
+                    Log::warning('Login ditolak, akun belum diverifikasi', [
+                        'email' => $credentials['email'],
+                        'ip' => $request->ip(),
+                    ]);
+
+                    return back()->withErrors([
+                        'email' => 'Akun Anda belum diverifikasi oleh admin lain.',
+                    ])->withInput($request->only('email'));
+                }
+
+                Auth::login($user, $request->boolean('remember'));
                 $request->session()->regenerate();
 
                 Log::info('Admin berhasil login', [
@@ -69,7 +61,6 @@ class AdminController extends Controller
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->withInput($request->only('email'));
-
         } catch (\Exception $e) {
             Log::error('Error saat proses login', [
                 'message' => $e->getMessage(),
@@ -80,9 +71,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Proses logout admin.
-     */
     public function logout(Request $request)
     {
         Log::info('Admin logout', ['user' => Auth::user()->email ?? 'unknown']);
@@ -95,18 +83,9 @@ class AdminController extends Controller
             ->with('success', 'Berhasil logout.');
     }
 
-    /**
-     * Menampilkan dashboard admin dengan statistik.
-     *
-     * Kompetensi:
-     * - J.620100.020.02 - Menggunakan SQL (aggregate queries)
-     * - J.620100.022.02 - Algoritma penghitungan statistik
-     * - J.620100.045.01 - Pemantauan Resource
-     */
     public function dashboard()
     {
         try {
-            // Statistik menggunakan raw SQL - Kompetensi SQL
             $stats = DB::select("
                 SELECT 
                     COUNT(*) as total,
@@ -120,7 +99,6 @@ class AdminController extends Controller
 
             $statistik = $stats[0];
 
-            // Statistik gender - Kompetensi SQL
             $genderStats = DB::select('
                 SELECT 
                     jenis_kelamin,
@@ -130,12 +108,10 @@ class AdminController extends Controller
                 GROUP BY jenis_kelamin
             ', ['2026/2027']);
 
-            // Pendaftar terbaru
             $pendaftarTerbaru = Pendaftaran::orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
 
-            // Statistik pendaftaran per hari (7 hari terakhir) - Kompetensi Algoritma
             $chartData = DB::select("
                 SELECT 
                     DATE(created_at) as tanggal,
@@ -146,7 +122,6 @@ class AdminController extends Controller
                 ORDER BY tanggal ASC
             ");
 
-            // Resource monitoring - Kompetensi Pemantauan Resource
             $resourceInfo = $this->getResourceInfo();
 
             return view('admin.dashboard', compact(
@@ -156,14 +131,12 @@ class AdminController extends Controller
                 'chartData',
                 'resourceInfo'
             ));
-
         } catch (\Exception $e) {
             Log::error('Error loading dashboard', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Alert notification - Kompetensi Alert Notification
             return view('admin.dashboard', [
                 'statistik' => (object) ['total' => 0, 'menunggu' => 0, 'diverifikasi' => 0, 'diterima' => 0, 'ditolak' => 0],
                 'genderStats' => [],
@@ -175,29 +148,19 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Menampilkan daftar pendaftar dengan filter dan pencarian.
-     *
-     * Kompetensi:
-     * - J.620100.020.02 - SQL Query dengan filter
-     * - J.620100.022.02 - Algoritma sorting dan filtering
-     */
     public function pendaftar(Request $request)
     {
         try {
             $query = Pendaftaran::query();
 
-            // Filter berdasarkan status
             if ($request->filled('status')) {
                 $query->byStatus($request->status);
             }
 
-            // Pencarian
             if ($request->filled('search')) {
                 $query->search($request->search);
             }
 
-            // Sorting - Kompetensi Algoritma
             $sortBy = $request->input('sort', 'created_at');
             $sortDir = $request->input('dir', 'desc');
             $allowedSorts = ['created_at', 'nama_lengkap', 'no_pendaftaran', 'status'];
@@ -209,7 +172,6 @@ class AdminController extends Controller
             $pendaftar = $query->paginate(15)->withQueryString();
 
             return view('admin.pendaftar', compact('pendaftar'));
-
         } catch (\Exception $e) {
             Log::error('Error loading pendaftar list', ['message' => $e->getMessage()]);
 
@@ -217,9 +179,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Menampilkan detail pendaftar.
-     */
     public function detail(int $id)
     {
         try {
@@ -236,11 +195,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Update status pendaftar (verifikasi / terima / tolak).
-     *
-     * Kompetensi J.620100.021.02 - Akses Basis Data (Update operation)
-     */
     public function updateStatus(Request $request, int $id)
     {
         $request->validate([
@@ -273,7 +227,6 @@ class AdminController extends Controller
             ];
 
             return back()->with('success', "Status berhasil diubah menjadi '{$statusLabels[$request->status]}'.");
-
         } catch (\Exception $e) {
             Log::error('Error updating status', [
                 'id' => $id,
@@ -284,22 +237,11 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Hapus data pendaftar.
-     */
     public function destroy(int $id)
     {
         try {
             $pendaftaran = Pendaftaran::findOrFail($id);
             $nama = $pendaftaran->nama_lengkap;
-
-            // Hapus file yang terkait
-            $fileFields = ['foto_siswa', 'akta_kelahiran', 'kartu_keluarga', 'ijazah_tk'];
-            foreach ($fileFields as $field) {
-                if ($pendaftaran->$field) {
-                    Storage::disk('public')->delete($pendaftaran->$field);
-                }
-            }
 
             $pendaftaran->delete();
 
@@ -311,7 +253,6 @@ class AdminController extends Controller
 
             return redirect()->route('admin.pendaftar')
                 ->with('success', "Data pendaftar '{$nama}' berhasil dihapus.");
-
         } catch (\Exception $e) {
             Log::error('Error deleting pendaftar', [
                 'id' => $id,
@@ -322,13 +263,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Mengukur status stunting menggunakan naufalfunction.
-     *
-     * Kompetensi:
-     * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
-     * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
-     */
     public function naufalfunction(Request $request)
     {
         $validated = $request->validate([
@@ -356,11 +290,6 @@ class AdminController extends Controller
         return back()->with('stunting_result', $hasil->toArray())->withInput();
     }
 
-    /**
-     * Mengambil informasi resource sistem.
-     *
-     * Kompetensi J.620100.045.01 - Melakukan Pemantauan Resource yang Digunakan Aplikasi
-     */
     private function getResourceInfo(): array
     {
         try {
@@ -371,7 +300,7 @@ class AdminController extends Controller
             }
 
             $storageSize = 0;
-            $storagePath = storage_path('app/public/dokumen');
+            $storagePath = storage_path('app/public');
             if (is_dir($storagePath)) {
                 $storageSize = $this->getDirectorySize($storagePath);
             }
@@ -398,11 +327,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Menghitung ukuran direktori secara rekursif.
-     *
-     * Kompetensi J.620100.022.02 - Algoritma rekursif
-     */
     private function getDirectorySize(string $path): int
     {
         $size = 0;
@@ -415,9 +339,6 @@ class AdminController extends Controller
         return $size;
     }
 
-    /**
-     * Format bytes ke human-readable string.
-     */
     private function formatBytes(int|float $bytes, int $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -429,9 +350,6 @@ class AdminController extends Controller
         return round($bytes, $precision).' '.$units[$pow];
     }
 
-    /**
-     * Mendapatkan server uptime.
-     */
     private function getServerUptime(): string
     {
         try {

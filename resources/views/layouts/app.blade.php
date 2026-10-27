@@ -7,18 +7,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'PSB Online SD')</title>
 
-    {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    {{-- Bootstrap 5 CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- Bootstrap Icons --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    {{-- AOS Animation --}}
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
@@ -67,7 +63,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== NAVBAR ===== */
         .navbar-psb {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
@@ -152,7 +147,6 @@
             box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
         }
 
-        /* ===== BUTTONS ===== */
         .btn-primary-psb {
             background: var(--gradient-primary);
             color: white;
@@ -196,7 +190,6 @@
             transform: translateY(-2px);
         }
 
-        /* ===== CARDS ===== */
         .card-psb {
             background: white;
             border: 1px solid var(--gray-200);
@@ -215,7 +208,6 @@
             padding: 1.5rem;
         }
 
-        /* ===== STAT CARDS ===== */
         .stat-card {
             background: white;
             border-radius: var(--radius-lg);
@@ -269,7 +261,6 @@
             font-weight: 500;
         }
 
-        /* ===== FORM STYLES ===== */
         .form-section {
             background: white;
             border-radius: var(--radius-lg);
@@ -323,7 +314,6 @@
             border-color: var(--danger);
         }
 
-        /* ===== FOOTER ===== */
         .footer-psb {
             background: var(--darker);
             color: rgba(255, 255, 255, 0.7);
@@ -353,7 +343,6 @@
             margin-top: 2rem;
         }
 
-        /* ===== BADGE STYLES ===== */
         .badge-status {
             padding: 0.4rem 0.8rem;
             border-radius: 20px;
@@ -368,7 +357,6 @@
         .badge-success { background: rgba(16, 185, 129, 0.15); color: #047857; }
         .badge-danger { background: rgba(239, 68, 68, 0.15); color: #B91C1C; }
 
-        /* ===== TABLE STYLES ===== */
         .table-psb {
             border-collapse: separate;
             border-spacing: 0;
@@ -396,7 +384,6 @@
             background: rgba(79, 70, 229, 0.03);
         }
 
-        /* ===== ALERT STYLES ===== */
         .alert-psb {
             border: none;
             border-radius: var(--radius);
@@ -417,7 +404,6 @@
             color: #B91C1C;
         }
 
-        /* ===== ANIMATIONS ===== */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -451,7 +437,6 @@
             animation: float 3s ease-in-out infinite;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .stat-card .stat-number {
                 font-size: 1.5rem;
@@ -466,7 +451,6 @@
             }
         }
 
-        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -484,7 +468,6 @@
             background: var(--gray-400);
         }
 
-        /* ===== MISC ===== */
         .page-header {
             padding: 2rem 0;
             margin-bottom: 2rem;
@@ -518,7 +501,6 @@
     @yield('styles')
 </head>
 <body>
-    {{-- NAVBAR --}}
     <nav class="navbar navbar-expand-lg navbar-psb sticky-top" id="mainNavbar">
         <div class="container">
             <a class="navbar-brand-psb" href="{{ route('home') }}">
@@ -562,7 +544,6 @@
         </div>
     </nav>
 
-    {{-- FLASH MESSAGES --}}
     @if(session('success'))
         <div class="container mt-3">
             <div class="alert-psb success animate-fade-in" role="alert">
@@ -581,12 +562,10 @@
         </div>
     @endif
 
-    {{-- MAIN CONTENT --}}
     <main>
         @yield('content')
     </main>
 
-    {{-- FOOTER --}}
     <footer class="footer-psb">
         <div class="container">
             <div class="row">
@@ -629,14 +608,11 @@
         </div>
     </footer>
 
-    {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- AOS Animation --}}
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
     <script>
-        // Initialize AOS
         AOS.init({
             duration: 800,
             easing: 'ease-out-cubic',
@@ -644,7 +620,6 @@
             offset: 50
         });
 
-        // Navbar scroll effect
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('mainNavbar');
             if (window.scrollY > 50) {
@@ -654,7 +629,6 @@
             }
         });
 
-        // Auto-hide flash messages
         setTimeout(function() {
             const alerts = document.querySelectorAll('.alert-psb');
             alerts.forEach(function(alert) {

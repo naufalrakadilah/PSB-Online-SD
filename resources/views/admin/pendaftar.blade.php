@@ -5,10 +5,8 @@
 
 @section('content')
 <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
-    {{-- STATUS TABS & SEARCH HEADER --}}
     <div class="p-3 border-bottom">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            {{-- Filter Pills --}}
             <div class="btn-group" role="group">
                 <a href="{{ route('admin.pendaftar') }}" 
                    class="btn btn-sm {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">
@@ -32,7 +30,6 @@
                 </a>
             </div>
 
-            {{-- Search Input --}}
             <form action="{{ route('admin.pendaftar') }}" method="GET" class="d-flex gap-2">
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
@@ -56,7 +53,6 @@
         </div>
     </div>
 
-    {{-- APPLICANTS TABLE --}}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
@@ -132,7 +128,6 @@
                                 </button>
                             </div>
 
-                            {{-- MODAL HAPUS --}}
                             <div class="modal fade text-start" id="deleteModal{{ $item->id }}" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content rounded-4 border-0">
@@ -143,7 +138,7 @@
                                         <div class="modal-body py-3">
                                             <p class="mb-0">
                                                 Apakah Anda yakin ingin menghapus data calon siswa <strong>{{ $item->nama_lengkap }}</strong> (<code>{{ $item->no_pendaftaran }}</code>)?
-                                                Semua berkas dokumen yang terupload juga akan dihapus permanen.
+                                                Data yang dihapus tidak dapat dikembalikan.
                                             </p>
                                         </div>
                                         <div class="modal-footer border-0 pt-0">
@@ -171,7 +166,6 @@
         </table>
     </div>
 
-    {{-- PAGINATION --}}
     @if($pendaftar->hasPages())
         <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap">
             <small class="text-muted">

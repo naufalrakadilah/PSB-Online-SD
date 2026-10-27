@@ -103,7 +103,10 @@
                 <i class="bi bi-box-arrow-in-right me-2"></i> Masuk ke Dashboard
             </button>
 
-            {{-- Demo Hint Box --}}
+            <div class="text-center small text-muted mb-3">
+                Belum punya akun? <a href="{{ route('admin.daftar') }}" class="fw-semibold">Daftar akun admin</a>
+            </div>
+
             <div class="alert alert-light border rounded-3 p-3 mb-0 small text-muted">
                 <div class="fw-semibold text-dark mb-1">
                     <i class="bi bi-info-circle-fill text-primary me-1"></i> Akun Pengujian Default:

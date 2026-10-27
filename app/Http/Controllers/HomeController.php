@@ -4,30 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
 
-/**
- * HomeController - Controller untuk halaman utama (landing page).
- *
- * Kompetensi:
- * - J.620100.006.01 - Merancang User Experience
- * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
- * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
- */
 class HomeController extends Controller
 {
-    /**
-     * Menampilkan halaman utama (landing page).
-     * Menghitung statistik pendaftaran menggunakan query aggregate.
-     *
-     * Kompetensi J.620100.020.02 - Menggunakan SQL
-     *
-     * @return View
-     */
     public function index()
     {
         try {
-            // Menggunakan raw SQL untuk statistik (Kompetensi SQL)
             $stats = DB::select("
                 SELECT 
                     COUNT(*) as total_pendaftar,
@@ -49,7 +31,6 @@ class HomeController extends Controller
 
             return view('home', compact('statistik'));
         } catch (\Exception $e) {
-            // Kompetensi J.620100.025.02 - Melakukan Debugging
             Log::error('Error loading landing page', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

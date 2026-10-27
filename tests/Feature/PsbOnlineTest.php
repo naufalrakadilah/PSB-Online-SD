@@ -6,19 +6,14 @@ use App\Models\Pendaftaran;
 use App\Models\User;
 use Database\Seeders\AdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-/**
- * PsbOnlineTest - Pengujian fungsional dan statis fitur PSB Online SD.
- *
- * Kompetensi:
- * - J.620100.036.02 - Melaksanakan Pengujian Kode Program Secara Statis
- * - J.620100.032.01 - Menerapkan Code Review
- * - J.620100.025.02 - Melakukan Debugging
- */
 class PsbOnlineTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const TANGGAL_PENDAFTARAN = '2026-10-27';
 
     protected function setUp(): void
     {
@@ -26,9 +21,6 @@ class PsbOnlineTest extends TestCase
         $this->seed(AdminSeeder::class);
     }
 
-    /**
-     * Test 1: Halaman beranda dapat diakses publik.
-     */
     public function test_landing_page_can_be_rendered(): void
     {
         $response = $this->get('/');
@@ -36,9 +28,6 @@ class PsbOnlineTest extends TestCase
         $response->assertSee('PSB Online SD');
     }
 
-    /**
-     * Test 2: Halaman form pendaftaran dapat diakses.
-     */
     public function test_registration_form_can_be_rendered(): void
     {
         $response = $this->get('/pendaftaran');
@@ -46,12 +35,10 @@ class PsbOnlineTest extends TestCase
         $response->assertSee('Formulir Pendaftaran');
     }
 
-    /**
-     * Test 3: Pendaftaran siswa baru berhasil dengan data valid.
-     * Menguji algoritma penomoran PSB-YYYY-XXXX (J.620100.022.02)
-     */
     public function test_student_can_register_with_valid_data(): void
     {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
         $formData = [
             'nama_lengkap' => 'Muhammad Bintang Pratama',
             'nik' => '3201019901190009',
@@ -81,14 +68,13 @@ class PsbOnlineTest extends TestCase
         $response->assertRedirect(route('pendaftaran.success', $pendaftaran->no_pendaftaran));
     }
 
-    /**
-     * Test 4: Validasi NIK harus 16 digit.
-     */
     public function test_registration_fails_if_nik_is_not_16_digits(): void
     {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
         $formData = [
             'nama_lengkap' => 'Anak Tanpa NIK Benar',
-            'nik' => '123', // Salah, bukan 16 digit
+            'nik' => '123',
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '2019-03-10',
             'jenis_kelamin' => 'Laki-laki',
@@ -103,11 +89,10 @@ class PsbOnlineTest extends TestCase
         $response->assertSessionHasErrors(['nik']);
     }
 
-    /**
-     * Test 5: NIK yang sudah terdaftar tidak dapat didaftarkan ulang.
-     */
     public function test_registration_fails_if_nik_already_exists(): void
     {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
         Pendaftaran::create([
             'no_pendaftaran' => 'PSB-2026-0001',
             'nama_lengkap' => 'Siswa Pertama',
@@ -139,9 +124,6 @@ class PsbOnlineTest extends TestCase
         $response->assertSessionHasErrors(['nik']);
     }
 
-    /**
-     * Test 6: Cek status pendaftaran menemukan nomor pendaftaran valid.
-     */
     public function test_cek_status_finds_existing_registration(): void
     {
         $pendaftar = Pendaftaran::create([
@@ -164,9 +146,6 @@ class PsbOnlineTest extends TestCase
         $response->assertSee('Tes Siswa Status');
     }
 
-    /**
-     * Test 6: Halaman pengumuman dapat diakses publik.
-     */
     public function test_pengumuman_page_can_be_rendered(): void
     {
         $response = $this->get('/pengumuman');
@@ -174,9 +153,6 @@ class PsbOnlineTest extends TestCase
         $response->assertSee('Pengumuman Hasil Seleksi');
     }
 
-    /**
-     * Test 7: Admin dapat login dengan kredensial yang valid.
-     */
     public function test_admin_can_login(): void
     {
         $response = $this->post('/admin/login', [
@@ -188,23 +164,16 @@ class PsbOnlineTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    /**
-     * Test 8: Tamu yang tidak login dialihkan saat mengakses dashboard admin.
-     */
     public function test_unauthenticated_user_cannot_access_admin_dashboard(): void
     {
         $response = $this->get('/admin/dashboard');
         $response->assertRedirect(route('admin.login'));
     }
 
-    /**
-     * Test 9: Admin dapat memeriksa status stunting siswa via route admin.cek-stunting.
-     */
     public function test_admin_can_check_stunting_with_naufalfunction(): void
     {
         $admin = User::first();
 
-        // Tes JSON response
         $response = $this->actingAs($admin)->postJson(route('admin.cek-stunting'), [
             'tinggi' => 80,
             'median' => 86,
@@ -219,11 +188,10 @@ class PsbOnlineTest extends TestCase
         ]);
     }
 
-    /**
-     * Test 10: Tinggi badan wajib diisi saat pendaftaran.
-     */
     public function test_registration_fails_without_tinggi_badan(): void
     {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
         $response = $this->post('/pendaftaran', [
             'nama_lengkap' => 'Anak Tanpa Tinggi',
             'nik' => '3201019901190010',
@@ -239,9 +207,6 @@ class PsbOnlineTest extends TestCase
         $response->assertSessionHasErrors(['tinggi_badan']);
     }
 
-    /**
-     * Test 11: Halaman detail admin langsung menampilkan hasil stunting dari tinggi badan pendaftar.
-     */
     public function test_admin_detail_shows_stunting_result_from_registered_height(): void
     {
         $pendaftaran = Pendaftaran::create([
@@ -262,10 +227,112 @@ class PsbOnlineTest extends TestCase
 
         $response = $this->actingAs(User::first())->get(route('admin.detail', $pendaftaran->id));
 
-        // Z = (104 - 116.0) / 4.93 = -2.43 -> Stunting
         $response->assertOk();
         $response->assertSee('104 cm');
         $response->assertSee('Pendek (Stunted)');
         $response->assertSee('-2.43');
+    }
+
+    public function test_registration_form_does_not_show_removed_fields(): void
+    {
+        $response = $this->get('/pendaftaran');
+
+        $response->assertOk();
+        $response->assertSee('Alamat Lengkap');
+        $response->assertDontSee('name="nisn"', false);
+        $response->assertDontSee('name="kelurahan"', false);
+        $response->assertDontSee('type="file"', false);
+    }
+
+    #[DataProvider('invalidRegistrationInputs')]
+    public function test_registration_rejects_invalid_input(string $field, string $value, string $message): void
+    {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
+        $response = $this->post('/pendaftaran', $this->validRegistrationData([$field => $value]));
+
+        $response->assertSessionHasErrors([$field => $message]);
+        $this->assertDatabaseCount('pendaftaran', 0);
+    }
+
+    public static function invalidRegistrationInputs(): array
+    {
+        return [
+            'nama lengkap berisi angka' => ['nama_lengkap', 'Budi 123', 'Nama lengkap hanya boleh berisi huruf.'],
+            'nik kurang dari 16 digit' => ['nik', '320101990119000', 'NIK harus 16 digit angka.'],
+            'nik lebih dari 16 digit' => ['nik', '32010199011900091', 'NIK harus 16 digit angka.'],
+            'nik berisi huruf' => ['nik', '32010199011900AB', 'NIK harus 16 digit angka.'],
+            'tempat lahir berisi angka' => ['tempat_lahir', 'Jakarta 2', 'Tempat lahir hanya boleh berisi huruf.'],
+            'umur di bawah 5 tahun' => ['tanggal_lahir', '2021-10-28', 'Umur calon siswa minimal 5 tahun pada tanggal pendaftaran.'],
+            'umur sudah 12 tahun' => ['tanggal_lahir', '2014-10-27', 'Umur calon siswa maksimal 11 tahun pada tanggal pendaftaran.'],
+            'nama ayah berisi angka' => ['nama_ayah', 'Budi 2', 'Nama ayah hanya boleh berisi huruf.'],
+            'pekerjaan ayah berisi angka' => ['pekerjaan_ayah', 'Karyawan 1', 'Pekerjaan ayah hanya boleh berisi huruf.'],
+            'nama ibu berisi angka' => ['nama_ibu', 'Siti 2', 'Nama ibu hanya boleh berisi huruf.'],
+            'pekerjaan ibu berisi angka' => ['pekerjaan_ibu', 'Guru 2', 'Pekerjaan ibu hanya boleh berisi huruf.'],
+            'no hp ayah berisi huruf' => ['no_hp_ayah', '0812abc', 'No. HP ayah hanya boleh berisi angka.'],
+            'no hp ayah lebih dari 12 digit' => ['no_hp_ayah', '0812345678901', 'No. HP ayah maksimal 12 digit.'],
+            'no hp ibu berisi huruf' => ['no_hp_ibu', '0812abc', 'No. HP ibu hanya boleh berisi angka.'],
+            'no hp ibu lebih dari 12 digit' => ['no_hp_ibu', '0812345678901', 'No. HP ibu maksimal 12 digit.'],
+        ];
+    }
+
+    #[DataProvider('validBoundaryInputs')]
+    public function test_registration_accepts_boundary_input(string $field, string $value): void
+    {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+
+        $response = $this->post('/pendaftaran', $this->validRegistrationData([$field => $value]));
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('pendaftaran', ['nik' => '3201019901190009']);
+    }
+
+    public static function validBoundaryInputs(): array
+    {
+        return [
+            'tepat 5 tahun' => ['tanggal_lahir', '2021-10-27'],
+            'sehari sebelum 12 tahun' => ['tanggal_lahir', '2014-10-28'],
+            'no hp tepat 12 digit' => ['no_hp_ayah', '081234567890'],
+            'nama dengan titik dan apostrof' => ['nama_lengkap', "M. Rizky Nur'aini"],
+        ];
+    }
+
+    public function test_bukti_pendaftaran_can_be_downloaded_as_pdf(): void
+    {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+        $this->post('/pendaftaran', $this->validRegistrationData());
+        $pendaftaran = Pendaftaran::where('nik', '3201019901190009')->firstOrFail();
+
+        $response = $this->get(route('pendaftaran.cetak', $pendaftaran->no_pendaftaran));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+        $response->assertDownload("Bukti-Pendaftaran-{$pendaftaran->no_pendaftaran}.pdf");
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_bukti_pendaftaran_returns_not_found_for_unknown_number(): void
+    {
+        $this->get(route('pendaftaran.cetak', 'PSB-2026-10-9999'))->assertNotFound();
+    }
+
+    private function validRegistrationData(array $overrides = []): array
+    {
+        return array_merge([
+            'nama_lengkap' => 'Muhammad Bintang Pratama',
+            'nik' => '3201019901190009',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => '2019-03-10',
+            'jenis_kelamin' => 'Laki-laki',
+            'tinggi_badan' => 118.5,
+            'agama' => 'Islam',
+            'alamat' => 'Jl. Merdeka No. 10, RT 01/RW 02, Kel. Sukajaya, Kota Nusantara',
+            'nama_ayah' => 'Budi Santoso',
+            'pekerjaan_ayah' => 'Wiraswasta',
+            'no_hp_ayah' => '081234567890',
+            'nama_ibu' => 'Siti Nurhaliza',
+            'pekerjaan_ibu' => 'Guru',
+            'no_hp_ibu' => '081298765432',
+        ], $overrides);
     }
 }

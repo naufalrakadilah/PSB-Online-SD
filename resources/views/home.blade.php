@@ -4,7 +4,6 @@
 
 @section('styles')
 <style>
-    /* ===== HERO SECTION ===== */
     .hero-section {
         background: var(--gradient-hero);
         min-height: 90vh;
@@ -117,7 +116,6 @@
         font-weight: 500;
     }
 
-    /* ===== INFO SECTION ===== */
     .info-section {
         padding: 5rem 0;
         position: relative;
@@ -137,7 +135,6 @@
         margin: 0 auto;
     }
 
-    /* ===== FEATURE CARDS ===== */
     .feature-card {
         background: white;
         border: 1px solid var(--gray-200);
@@ -194,7 +191,6 @@
         margin: 0;
     }
 
-    /* ===== TIMELINE ===== */
     .timeline-section {
         background: var(--gray-100);
         padding: 5rem 0;
@@ -248,7 +244,6 @@
         font-size: 0.85rem;
     }
 
-    /* ===== CTA SECTION ===== */
     .cta-section {
         background: var(--gradient-hero);
         padding: 5rem 0;
@@ -301,7 +296,6 @@
         color: var(--primary-dark);
     }
 
-    /* ===== REQUIREMENTS SECTION ===== */
     .requirements-section {
         padding: 5rem 0;
     }
@@ -340,7 +334,6 @@
 @endsection
 
 @section('content')
-    {{-- HERO SECTION --}}
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center">
@@ -399,7 +392,6 @@
         </div>
     </section>
 
-    {{-- FEATURES SECTION --}}
     <section class="info-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
@@ -448,7 +440,6 @@
         </div>
     </section>
 
-    {{-- TIMELINE / ALUR PENDAFTARAN --}}
     <section class="timeline-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
@@ -470,23 +461,14 @@
                     <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
                         <div class="timeline-dot">2</div>
                         <div class="timeline-content">
-                            <h6>Upload Dokumen</h6>
-                            <p>Unggah dokumen persyaratan: foto siswa, akta kelahiran, kartu keluarga, dan ijazah TK.</p>
-                            <span class="date">Bersamaan dengan pengisian formulir</span>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
-                        <div class="timeline-dot">3</div>
-                        <div class="timeline-content">
                             <h6>Verifikasi Data</h6>
                             <p>Tim panitia PSB akan memverifikasi kelengkapan dan keabsahan data yang Anda kirim.</p>
                             <span class="date">1 - 7 Desember 2026</span>
                         </div>
                     </div>
 
-                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="400">
-                        <div class="timeline-dot">4</div>
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                        <div class="timeline-dot">3</div>
                         <div class="timeline-content">
                             <h6>Pengumuman Hasil</h6>
                             <p>Hasil seleksi akan diumumkan melalui halaman pengumuman di website ini.</p>
@@ -494,8 +476,8 @@
                         </div>
                     </div>
 
-                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="500">
-                        <div class="timeline-dot">5</div>
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="400">
+                        <div class="timeline-dot">4</div>
                         <div class="timeline-content">
                             <h6>Daftar Ulang</h6>
                             <p>Calon siswa yang diterima wajib melakukan daftar ulang ke sekolah dengan membawa dokumen asli.</p>
@@ -507,13 +489,12 @@
         </div>
     </section>
 
-    {{-- REQUIREMENTS SECTION --}}
     <section class="requirements-section">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-5 mb-4 mb-lg-0" data-aos="fade-right">
                     <h2 class="section-title">Persyaratan <span class="text-gradient">Pendaftaran</span></h2>
-                    <p class="section-subtitle mb-0">Pastikan Anda telah menyiapkan dokumen berikut sebelum mendaftar</p>
+                    <p class="section-subtitle mb-0">Siapkan dokumen asli berikut untuk dibawa saat daftar ulang</p>
                 </div>
                 <div class="col-lg-7" data-aos="fade-left">
                     <div class="row">
@@ -538,15 +519,11 @@
                         <div class="col-md-6">
                             <div class="req-item">
                                 <div class="check-icon"><i class="bi bi-check2"></i></div>
-                                <span>Usia minimal 6 tahun (per Juli 2027)</span>
+                                <span>Usia 5–11 tahun saat mendaftar</span>
                             </div>
                             <div class="req-item">
                                 <div class="check-icon"><i class="bi bi-check2"></i></div>
                                 <span>NIK / KTP Orang Tua</span>
-                            </div>
-                            <div class="req-item">
-                                <div class="check-icon"><i class="bi bi-check2"></i></div>
-                                <span>Nomor NISN (jika ada)</span>
                             </div>
                             <div class="req-item">
                                 <div class="check-icon"><i class="bi bi-check2"></i></div>
@@ -559,7 +536,6 @@
         </div>
     </section>
 
-    {{-- CTA SECTION --}}
     <section class="cta-section">
         <div class="container text-center position-relative" data-aos="zoom-in">
             <h2 class="mb-3">Jangan Lewatkan Kesempatan Ini!</h2>
