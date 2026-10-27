@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 /**
  * PendaftaranController - Controller untuk proses pendaftaran siswa baru.
- * 
+ *
  * Kompetensi:
  * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
  * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
@@ -24,7 +25,7 @@ class PendaftaranController extends Controller
     /**
      * Menampilkan form pendaftaran siswa baru.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create()
     {
@@ -34,14 +35,13 @@ class PendaftaranController extends Controller
     /**
      * Menyimpan data pendaftaran siswa baru.
      * Melakukan validasi, upload file, dan penyimpanan ke database.
-     * 
+     *
      * Kompetensi:
      * - J.620100.022.02 - Algoritma validasi dan pemrosesan data
      * - J.620100.030.02 - Upload dan manajemen file multimedia
      * - J.620100.025.02 - Error handling dan debugging
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -51,7 +51,7 @@ class PendaftaranController extends Controller
                 // Data Siswa
                 'nama_lengkap' => 'required|string|max:255',
                 'nisn' => 'nullable|string|max:20',
-                'nik' => 'required|string|size:16',
+                'nik' => 'required|string|size:16|unique:pendaftaran,nik',
                 'tempat_lahir' => 'required|string|max:100',
                 'tanggal_lahir' => 'required|date|before:today',
                 'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
@@ -86,6 +86,7 @@ class PendaftaranController extends Controller
                 'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
                 'nik.required' => 'NIK wajib diisi.',
                 'nik.size' => 'NIK harus 16 digit.',
+                'nik.unique' => 'NIK sudah terdaftar. Silakan gunakan NIK lain.',
                 'tempat_lahir.required' => 'Tempat lahir wajib diisi.',
                 'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
                 'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
@@ -105,6 +106,7 @@ class PendaftaranController extends Controller
                 Log::warning('Validasi pendaftaran gagal', [
                     'errors' => $validator->errors()->toArray(),
                 ]);
+
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput();
@@ -122,8 +124,8 @@ class PendaftaranController extends Controller
             foreach ($uploadFields as $field) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
-                    $filename = $data['no_pendaftaran'] . '_' . $field . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('dokumen/' . $data['no_pendaftaran'], $filename, 'public');
+                    $filename = $data['no_pendaftaran'].'_'.$field.'_'.time().'.'.$file->getClientOriginalExtension();
+                    $path = $file->storeAs('dokumen/'.$data['no_pendaftaran'], $filename, 'public');
                     $data[$field] = $path;
 
                     Log::info("File {$field} berhasil diupload", [
@@ -164,32 +166,31 @@ class PendaftaranController extends Controller
     /**
      * Menampilkan halaman sukses pendaftaran.
      *
-     * @param string $noPendaftaran
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function success(string $noPendaftaran)
     {
         $pendaftaran = Pendaftaran::where('no_pendaftaran', $noPendaftaran)->firstOrFail();
+
         return view('pendaftaran.success', compact('pendaftaran'));
     }
 
     /**
      * Menampilkan halaman cetak bukti pendaftaran.
-     * 
-     * @param string $noPendaftaran
-     * @return \Illuminate\View\View
+     *
+     * @return View
      */
     public function cetak(string $noPendaftaran)
     {
         $pendaftaran = Pendaftaran::where('no_pendaftaran', $noPendaftaran)->firstOrFail();
+
         return view('pendaftaran.cetak', compact('pendaftaran'));
     }
 
     /**
      * Cek status pendaftaran berdasarkan nomor pendaftaran.
-     * 
-     * @param Request $request
-     * @return \Illuminate\View\View
+     *
+     * @return View
      */
     public function cekStatus(Request $request)
     {

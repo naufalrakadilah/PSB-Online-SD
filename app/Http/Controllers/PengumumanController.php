@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * PengumumanController - Controller untuk halaman pengumuman hasil seleksi.
- * 
+ *
  * Kompetensi:
  * - J.620100.017.02 - Pemrograman Terstruktur
  * - J.620100.018.02 - Pemrograman Berorientasi Objek
@@ -21,7 +21,7 @@ class PengumumanController extends Controller
     /**
      * Menampilkan halaman pengumuman.
      * Menampilkan daftar siswa yang diterima dan ditolak.
-     * 
+     *
      * Kompetensi:
      * - J.620100.020.02 - SQL query dengan sorting
      * - J.620100.022.02 - Algoritma filtering dan sorting
@@ -36,8 +36,8 @@ class PengumumanController extends Controller
             // Pencarian
             if ($request->filled('search')) {
                 $query->where(function ($q) use ($request) {
-                    $q->where('nama_lengkap', 'like', '%' . $request->search . '%')
-                      ->orWhere('no_pendaftaran', 'like', '%' . $request->search . '%');
+                    $q->where('nama_lengkap', 'like', '%'.$request->search.'%')
+                        ->orWhere('no_pendaftaran', 'like', '%'.$request->search.'%');
                 });
             }
 
@@ -63,6 +63,7 @@ class PengumumanController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error loading pengumuman', ['message' => $e->getMessage()]);
+
             return view('pengumuman', [
                 'hasil' => collect(),
                 'pengumumanStats' => (object) ['diterima' => 0, 'ditolak' => 0],

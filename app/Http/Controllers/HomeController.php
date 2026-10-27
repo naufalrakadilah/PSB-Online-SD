@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 /**
  * HomeController - Controller untuk halaman utama (landing page).
- * 
+ *
  * Kompetensi:
  * - J.620100.006.01 - Merancang User Experience
  * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
@@ -20,10 +20,10 @@ class HomeController extends Controller
     /**
      * Menampilkan halaman utama (landing page).
      * Menghitung statistik pendaftaran menggunakan query aggregate.
-     * 
+     *
      * Kompetensi J.620100.020.02 - Menggunakan SQL
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index()
     {

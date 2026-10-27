@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Migration untuk membuat tabel pendaftaran siswa baru.
- * 
+ *
  * Kompetensi:
  * - J.620100.020.02 - Menggunakan SQL (DDL untuk membuat tabel)
  * - J.620100.021.02 - Menerapkan Akses Basis Data (migrasi database)
@@ -23,10 +23,10 @@ return new class extends Migration
         Schema::create('pendaftaran', function (Blueprint $table) {
             // Primary key
             $table->id();
-            
+
             // Nomor pendaftaran unik (auto-generated)
             $table->string('no_pendaftaran')->unique();
-            
+
             // Data Calon Siswa
             $table->string('nama_lengkap');
             $table->string('nisn')->nullable();
@@ -42,10 +42,10 @@ return new class extends Migration
             $table->string('kecamatan')->nullable();
             $table->string('kota')->nullable();
             $table->string('kode_pos', 10)->nullable();
-            
+
             // Data Asal Sekolah (TK)
             $table->string('asal_sekolah')->nullable();
-            
+
             // Data Orang Tua / Wali
             $table->string('nama_ayah');
             $table->string('pekerjaan_ayah')->nullable();
@@ -56,23 +56,23 @@ return new class extends Migration
             $table->string('nama_wali')->nullable();
             $table->string('pekerjaan_wali')->nullable();
             $table->string('no_hp_wali', 20)->nullable();
-            
+
             // Dokumen Upload (path file)
             $table->string('foto_siswa')->nullable();
             $table->string('akta_kelahiran')->nullable();
             $table->string('kartu_keluarga')->nullable();
             $table->string('ijazah_tk')->nullable();
-            
+
             // Status Pendaftaran
             $table->enum('status', ['menunggu', 'diverifikasi', 'diterima', 'ditolak'])->default('menunggu');
             $table->text('catatan_admin')->nullable();
-            
+
             // Tahun Ajaran
             $table->string('tahun_ajaran')->default('2026/2027');
-            
+
             // Timestamps
             $table->timestamps();
-            
+
             // Indexes untuk optimasi query
             $table->index('status');
             $table->index('tahun_ajaran');

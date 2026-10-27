@@ -2,14 +2,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Pendaftaran;
+use App\Models\User;
+use Database\Seeders\AdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 /**
  * PsbOnlineTest - Pengujian fungsional dan statis fitur PSB Online SD.
- * 
+ *
  * Kompetensi:
  * - J.620100.036.02 - Melaksanakan Pengujian Kode Program Secara Statis
  * - J.620100.032.01 - Menerapkan Code Review
@@ -22,8 +23,8 @@ class PsbOnlineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        \Database\Seeders\AdminSeeder::class;
-        $this->seed(\Database\Seeders\AdminSeeder::class);
+        AdminSeeder::class;
+        $this->seed(AdminSeeder::class);
     }
 
     /**
@@ -101,7 +102,42 @@ class PsbOnlineTest extends TestCase
     }
 
     /**
-     * Test 5: Cek status pendaftaran menemukan nomor pendaftaran valid.
+     * Test 5: NIK yang sudah terdaftar tidak dapat didaftarkan ulang.
+     */
+    public function test_registration_fails_if_nik_already_exists(): void
+    {
+        Pendaftaran::create([
+            'no_pendaftaran' => 'PSB-2026-0001',
+            'nama_lengkap' => 'Siswa Pertama',
+            'nik' => '3201019901190009',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => '2019-03-10',
+            'jenis_kelamin' => 'Laki-laki',
+            'agama' => 'Islam',
+            'alamat' => 'Jl. Uji Duplication',
+            'nama_ayah' => 'Ayah Duplication',
+            'nama_ibu' => 'Ibu Duplication',
+            'status' => 'menunggu',
+            'tahun_ajaran' => '2026/2027',
+        ]);
+
+        $response = $this->post('/pendaftaran', [
+            'nama_lengkap' => 'Siswa Kedua',
+            'nik' => '3201019901190009',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => '2019-04-12',
+            'jenis_kelamin' => 'Perempuan',
+            'agama' => 'Islam',
+            'alamat' => 'Jl. Uji Duplication 2',
+            'nama_ayah' => 'Ayah Kedua',
+            'nama_ibu' => 'Ibu Kedua',
+        ]);
+
+        $response->assertSessionHasErrors(['nik']);
+    }
+
+    /**
+     * Test 6: Cek status pendaftaran menemukan nomor pendaftaran valid.
      */
     public function test_cek_status_finds_existing_registration(): void
     {
@@ -120,7 +156,7 @@ class PsbOnlineTest extends TestCase
             'tahun_ajaran' => '2026/2027',
         ]);
 
-        $response = $this->get('/cek-status?no_pendaftaran=' . $pendaftar->no_pendaftaran);
+        $response = $this->get('/cek-status?no_pendaftaran='.$pendaftar->no_pendaftaran);
         $response->assertStatus(200);
         $response->assertSee('Tes Siswa Status');
     }
@@ -156,5 +192,27 @@ class PsbOnlineTest extends TestCase
     {
         $response = $this->get('/admin/dashboard');
         $response->assertRedirect(route('admin.login'));
+    }
+
+    /**
+     * Test 9: Admin dapat memeriksa status stunting siswa via route admin.cek-stunting.
+     */
+    public function test_admin_can_check_stunting_with_naufalfunction(): void
+    {
+        $admin = User::first();
+
+        // Tes JSON response
+        $response = $this->actingAs($admin)->postJson(route('admin.cek-stunting'), [
+            'tinggi' => 80,
+            'median' => 86,
+            'sd' => 3,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'Stunting',
+            'is_stunting' => true,
+            'z_score' => -2.0,
+        ]);
     }
 }

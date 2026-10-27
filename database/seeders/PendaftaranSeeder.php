@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Pendaftaran;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 /**
  * PendaftaranSeeder - Mengisi data contoh pendaftar calon siswa SD

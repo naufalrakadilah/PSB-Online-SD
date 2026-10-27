@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Model Pendaftaran - Representasi data pendaftaran siswa baru.
- * 
+ *
  * Kompetensi:
  * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
  * - J.620100.021.02 - Menerapkan Akses Basis Data (Eloquent ORM)
  * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
- * 
+ *
  * @property int $id
  * @property string $no_pendaftaran
  * @property string $nama_lengkap
@@ -86,10 +87,10 @@ class Pendaftaran extends Model
 
     /**
      * Generate nomor pendaftaran secara otomatis.
-     * 
+     *
      * Algoritma: PSB-[TAHUN]-[BULAN]-[URUTAN 4 DIGIT]
      * Contoh: PSB-2026-10-0001
-     * 
+     *
      * Kompetensi J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
      *
      * @return string Nomor pendaftaran yang di-generate
@@ -113,7 +114,7 @@ class Pendaftaran extends Model
             $nextNumber = 1;
         }
 
-        $noPendaftaran = $prefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $noPendaftaran = $prefix.'-'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         Log::info('Generated nomor pendaftaran', ['no_pendaftaran' => $noPendaftaran]);
 
@@ -122,10 +123,9 @@ class Pendaftaran extends Model
 
     /**
      * Scope query untuk filter berdasarkan status.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $status
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByStatus($query, string $status)
     {
@@ -134,10 +134,9 @@ class Pendaftaran extends Model
 
     /**
      * Scope query untuk filter berdasarkan tahun ajaran.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $tahunAjaran
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeByTahunAjaran($query, string $tahunAjaran)
     {
@@ -146,23 +145,22 @@ class Pendaftaran extends Model
 
     /**
      * Scope query untuk pencarian berdasarkan nama atau nomor pendaftaran.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $search
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeSearch($query, string $search)
     {
         return $query->where(function ($q) use ($search) {
             $q->where('nama_lengkap', 'like', "%{$search}%")
-              ->orWhere('no_pendaftaran', 'like', "%{$search}%")
-              ->orWhere('nisn', 'like', "%{$search}%");
+                ->orWhere('no_pendaftaran', 'like', "%{$search}%")
+                ->orWhere('nisn', 'like', "%{$search}%");
         });
     }
 
     /**
      * Mendapatkan label status dengan warna badge.
-     * 
+     *
      * @return array{label: string, color: string}
      */
     public function getStatusBadgeAttribute(): array
@@ -178,7 +176,7 @@ class Pendaftaran extends Model
 
     /**
      * Mendapatkan umur calon siswa.
-     * 
+     *
      * @return int Umur dalam tahun
      */
     public function getUmurAttribute(): int
@@ -188,8 +186,6 @@ class Pendaftaran extends Model
 
     /**
      * Mendapatkan alamat lengkap yang sudah diformat.
-     * 
-     * @return string
      */
     public function getAlamatLengkapAttribute(): string
     {
@@ -212,5 +208,31 @@ class Pendaftaran extends Model
         }
 
         return implode(', ', $parts);
+    }
+
+    /**
+     * Mengukur tinggi badan anak apakah stunting atau tidak (naufalfunction).
+     *
+     * Kompetensi:
+     * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
+     * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
+     *
+     * @param  mixed  ...$args  Parameter kalkulasi stunting
+     * @return mixed Hasil evaluasi stunting
+     */
+    public static function naufalfunction(...$args): mixed
+    {
+        return naufalfunction(...$args);
+    }
+
+    /**
+     * Mengukur status stunting untuk calon siswa pendaftar ini.
+     *
+     * @param  float  $tinggiBadan  Tinggi badan dalam cm
+     * @param  bool  $asArray  True jika menginginkan format array
+     */
+    public function cekStunting(float $tinggiBadan, bool $asArray = false): mixed
+    {
+        return naufalfunction($tinggiBadan, $this, null, $asArray);
     }
 }

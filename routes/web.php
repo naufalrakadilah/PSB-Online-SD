@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PendaftaranController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PengumumanController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +12,7 @@ use App\Http\Controllers\PengumumanController;
 |--------------------------------------------------------------------------
 |
 | Konfigurasi routing untuk aplikasi PSB Online SD.
-| 
+|
 | Kompetensi:
 | - J.620100.017.02 - Pemrograman Terstruktur (route grouping)
 | - J.620100.006.01 - Merancang User Experience (URL yang intuitif)
@@ -44,7 +44,7 @@ Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumu
 
 // Login/Logout admin
 Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.login');
-Route::get('/login', fn() => redirect()->route('admin.login'))->name('login');
+Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 
@@ -58,4 +58,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/pendaftar/{id}', [AdminController::class, 'detail'])->name('detail');
     Route::put('/pendaftar/{id}/status', [AdminController::class, 'updateStatus'])->name('update-status');
     Route::delete('/pendaftar/{id}', [AdminController::class, 'destroy'])->name('destroy');
+
+    // Pengukuran Stunting (naufalfunction)
+    Route::post('/cek-stunting', [AdminController::class, 'cekStunting'])->name('cek-stunting');
 });

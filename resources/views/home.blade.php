@@ -12,7 +12,7 @@
         align-items: center;
         position: relative;
         overflow: hidden;
-    }
+    } 
 
     .hero-section::before {
         content: '';

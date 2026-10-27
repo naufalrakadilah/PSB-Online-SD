@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * AdminController - Controller untuk panel admin PSB Online.
- * 
+ *
  * Kompetensi:
  * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
  * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
@@ -33,12 +32,13 @@ class AdminController extends Controller
         if (Auth::check()) {
             return redirect()->route('admin.dashboard');
         }
+
         return view('admin.login');
     }
 
     /**
      * Proses login admin.
-     * 
+     *
      * Kompetensi J.620100.025.02 - Debugging & Error Handling
      */
     public function login(Request $request)
@@ -58,7 +58,7 @@ class AdminController extends Controller
                 ]);
 
                 return redirect()->route('admin.dashboard')
-                    ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
+                    ->with('success', 'Selamat datang, '.Auth::user()->name.'!');
             }
 
             Log::warning('Percobaan login gagal', [
@@ -97,7 +97,7 @@ class AdminController extends Controller
 
     /**
      * Menampilkan dashboard admin dengan statistik.
-     * 
+     *
      * Kompetensi:
      * - J.620100.020.02 - Menggunakan SQL (aggregate queries)
      * - J.620100.022.02 - Algoritma penghitungan statistik
@@ -110,10 +110,10 @@ class AdminController extends Controller
             $stats = DB::select("
                 SELECT 
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'menunggu' THEN 1 ELSE 0 END) as menunggu,
-                    SUM(CASE WHEN status = 'diverifikasi' THEN 1 ELSE 0 END) as diverifikasi,
-                    SUM(CASE WHEN status = 'diterima' THEN 1 ELSE 0 END) as diterima,
-                    SUM(CASE WHEN status = 'ditolak' THEN 1 ELSE 0 END) as ditolak
+                    COALESCE(SUM(CASE WHEN status = 'menunggu' THEN 1 ELSE 0 END), 0) as menunggu,
+                    COALESCE(SUM(CASE WHEN status = 'diverifikasi' THEN 1 ELSE 0 END), 0) as diverifikasi,
+                    COALESCE(SUM(CASE WHEN status = 'diterima' THEN 1 ELSE 0 END), 0) as diterima,
+                    COALESCE(SUM(CASE WHEN status = 'ditolak' THEN 1 ELSE 0 END), 0) as ditolak
                 FROM pendaftaran 
                 WHERE tahun_ajaran = ?
             ", ['2026/2027']);
@@ -121,14 +121,14 @@ class AdminController extends Controller
             $statistik = $stats[0];
 
             // Statistik gender - Kompetensi SQL
-            $genderStats = DB::select("
+            $genderStats = DB::select('
                 SELECT 
                     jenis_kelamin,
                     COUNT(*) as jumlah
                 FROM pendaftaran 
                 WHERE tahun_ajaran = ?
                 GROUP BY jenis_kelamin
-            ", ['2026/2027']);
+            ', ['2026/2027']);
 
             // Pendaftar terbaru
             $pendaftarTerbaru = Pendaftaran::orderBy('created_at', 'desc')
@@ -170,14 +170,14 @@ class AdminController extends Controller
                 'pendaftarTerbaru' => collect(),
                 'chartData' => [],
                 'resourceInfo' => $this->getResourceInfo(),
-                'alertError' => 'Terjadi kesalahan saat memuat data dashboard: ' . $e->getMessage(),
+                'alertError' => 'Terjadi kesalahan saat memuat data dashboard: '.$e->getMessage(),
             ]);
         }
     }
 
     /**
      * Menampilkan daftar pendaftar dengan filter dan pencarian.
-     * 
+     *
      * Kompetensi:
      * - J.620100.020.02 - SQL Query dengan filter
      * - J.620100.022.02 - Algoritma sorting dan filtering
@@ -212,6 +212,7 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error loading pendaftar list', ['message' => $e->getMessage()]);
+
             return back()->with('error', 'Gagal memuat data pendaftar.');
         }
     }
@@ -223,19 +224,21 @@ class AdminController extends Controller
     {
         try {
             $pendaftaran = Pendaftaran::findOrFail($id);
+
             return view('admin.detail', compact('pendaftaran'));
         } catch (\Exception $e) {
             Log::error('Error loading detail pendaftar', [
                 'id' => $id,
                 'message' => $e->getMessage(),
             ]);
+
             return back()->with('error', 'Data pendaftar tidak ditemukan.');
         }
     }
 
     /**
      * Update status pendaftar (verifikasi / terima / tolak).
-     * 
+     *
      * Kompetensi J.620100.021.02 - Akses Basis Data (Update operation)
      */
     public function updateStatus(Request $request, int $id)
@@ -294,7 +297,7 @@ class AdminController extends Controller
             $fileFields = ['foto_siswa', 'akta_kelahiran', 'kartu_keluarga', 'ijazah_tk'];
             foreach ($fileFields as $field) {
                 if ($pendaftaran->$field) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($pendaftaran->$field);
+                    Storage::disk('public')->delete($pendaftaran->$field);
                 }
             }
 
@@ -314,16 +317,49 @@ class AdminController extends Controller
                 'id' => $id,
                 'message' => $e->getMessage(),
             ]);
+
             return back()->with('error', 'Gagal menghapus data pendaftar.');
         }
     }
 
     /**
-     * Mengambil informasi resource sistem.
-     * 
-     * Kompetensi J.620100.045.01 - Melakukan Pemantauan Resource yang Digunakan Aplikasi
+     * Mengukur status stunting menggunakan naufalfunction.
      *
-     * @return array
+     * Kompetensi:
+     * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
+     * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
+     */
+    public function cekStunting(Request $request)
+    {
+        $validated = $request->validate([
+            'tinggi' => 'required|numeric|min:30|max:250',
+            'umur' => 'nullable|string',
+            'jenis_kelamin' => 'nullable|string',
+            'median' => 'nullable|numeric',
+            'sd' => 'nullable|numeric',
+        ]);
+
+        if ($request->filled('median') && $request->filled('sd')) {
+            $hasil = naufalfunction((float) $validated['tinggi'], (float) $validated['median'], (float) $validated['sd']);
+        } else {
+            $hasil = naufalfunction(
+                (float) $validated['tinggi'],
+                $validated['umur'] ?? '6 tahun',
+                $validated['jenis_kelamin'] ?? 'Laki-laki'
+            );
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($hasil);
+        }
+
+        return back()->with('stunting_result', $hasil->toArray())->withInput();
+    }
+
+    /**
+     * Mengambil informasi resource sistem.
+     *
+     * Kompetensi J.620100.045.01 - Melakukan Pemantauan Resource yang Digunakan Aplikasi
      */
     private function getResourceInfo(): array
     {
@@ -353,6 +389,7 @@ class AdminController extends Controller
             ];
         } catch (\Exception $e) {
             Log::error('Error getting resource info', ['message' => $e->getMessage()]);
+
             return [
                 'php_version' => PHP_VERSION,
                 'laravel_version' => app()->version(),
@@ -363,7 +400,7 @@ class AdminController extends Controller
 
     /**
      * Menghitung ukuran direktori secara rekursif.
-     * 
+     *
      * Kompetensi J.620100.022.02 - Algoritma rekursif
      */
     private function getDirectorySize(string $path): int
@@ -374,6 +411,7 @@ class AdminController extends Controller
                 $size += $file->getSize();
             }
         }
+
         return $size;
     }
 
@@ -388,7 +426,7 @@ class AdminController extends Controller
         $pow = min($pow, count($units) - 1);
         $bytes /= pow(1024, $pow);
 
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        return round($bytes, $precision).' '.$units[$pow];
     }
 
     /**
@@ -399,8 +437,10 @@ class AdminController extends Controller
         try {
             if (PHP_OS_FAMILY === 'Darwin' || PHP_OS_FAMILY === 'Linux') {
                 $uptime = shell_exec('uptime -p 2>/dev/null') ?: shell_exec('uptime');
+
                 return trim($uptime ?? 'N/A');
             }
+
             return 'N/A';
         } catch (\Exception $e) {
             return 'N/A';
