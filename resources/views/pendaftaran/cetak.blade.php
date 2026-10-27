@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>Bukti Pendaftaran - {{ $pendaftaran->no_pendaftaran }}</title>
     <style>
-        @page { margin: 1.5cm; }
-        * { margin: 0; padding: 0; }
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1E293B; }
+        @page { margin: 2cm 2.5cm; }
+        h1, h2, p { margin: 0; padding: 0; }
+        body { margin: 0; font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1E293B; }
 
         .header { text-align: center; border-bottom: 3px solid #4F46E5; padding-bottom: 14px; margin-bottom: 18px; }
         .header h1 { font-size: 13px; font-weight: bold; color: #4F46E5; text-transform: uppercase; letter-spacing: 1px; }
