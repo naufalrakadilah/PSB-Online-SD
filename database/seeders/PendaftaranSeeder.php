@@ -26,6 +26,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Jakarta',
                 'tanggal_lahir' => '2019-04-15', // Usia 7 tahun
                 'jenis_kelamin' => 'Laki-laki',
+                'tinggi_badan' => 122.5,
                 'agama' => 'Islam',
                 'alamat' => 'Jl. Kenanga No. 12',
                 'rt' => '03',
@@ -54,6 +55,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Bandung',
                 'tanggal_lahir' => '2019-08-20', // Usia 6.5 tahun
                 'jenis_kelamin' => 'Perempuan',
+                'tinggi_badan' => 117.0,
                 'agama' => 'Islam',
                 'alamat' => 'Jl. Mawar Indah Blok B3',
                 'rt' => '01',
@@ -82,6 +84,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Medan',
                 'tanggal_lahir' => '2019-11-12', // Usia 6 tahun 4 bulan
                 'jenis_kelamin' => 'Laki-laki',
+                'tinggi_badan' => 104.0,
                 'agama' => 'Kristen',
                 'alamat' => 'Komplek Harapan Mulia No. 45',
                 'rt' => '04',
@@ -110,6 +113,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Surabaya',
                 'tanggal_lahir' => '2020-02-14', // Usia 6 tahun
                 'jenis_kelamin' => 'Perempuan',
+                'tinggi_badan' => 115.5,
                 'agama' => 'Islam',
                 'alamat' => 'Jl. Flamboyan No. 8',
                 'rt' => '02',
@@ -138,6 +142,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Semarang',
                 'tanggal_lahir' => '2021-01-25', // Usia 5 tahun (kurang dari syarat 6 th)
                 'jenis_kelamin' => 'Laki-laki',
+                'tinggi_badan' => 111.0,
                 'agama' => 'Islam',
                 'alamat' => 'Jl. Dahlia Raya No. 19',
                 'rt' => '05',
@@ -166,6 +171,7 @@ class PendaftaranSeeder extends Seeder
                 'tempat_lahir' => 'Yogyakarta',
                 'tanggal_lahir' => '2019-05-18', // Usia 7 tahun
                 'jenis_kelamin' => 'Perempuan',
+                'tinggi_badan' => 101.5,
                 'agama' => 'Hindu',
                 'alamat' => 'Jl. Cempaka Putih No. 3',
                 'rt' => '01',

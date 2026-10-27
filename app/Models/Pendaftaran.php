@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\StuntingHelper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Log;
  * @property string $tempat_lahir
  * @property string $tanggal_lahir
  * @property string $jenis_kelamin
+ * @property float|null $tinggi_badan
  * @property string $agama
  * @property string $alamat
  * @property string $status
@@ -49,6 +51,7 @@ class Pendaftaran extends Model
         'tempat_lahir',
         'tanggal_lahir',
         'jenis_kelamin',
+        'tinggi_badan',
         'agama',
         'alamat',
         'rt',
@@ -81,6 +84,7 @@ class Pendaftaran extends Model
      */
     protected $casts = [
         'tanggal_lahir' => 'date',
+        'tinggi_badan' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -130,17 +134,6 @@ class Pendaftaran extends Model
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
-    }
-
-    /**
-     * Scope query untuk filter berdasarkan tahun ajaran.
-     *
-     * @param  Builder  $query
-     * @return Builder
-     */
-    public function scopeByTahunAjaran($query, string $tahunAjaran)
-    {
-        return $query->where('tahun_ajaran', $tahunAjaran);
     }
 
     /**
@@ -211,21 +204,6 @@ class Pendaftaran extends Model
     }
 
     /**
-     * Mengukur tinggi badan anak apakah stunting atau tidak (naufalfunction).
-     *
-     * Kompetensi:
-     * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
-     * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
-     *
-     * @param  mixed  ...$args  Parameter kalkulasi stunting
-     * @return mixed Hasil evaluasi stunting
-     */
-    public static function naufalfunction(...$args): mixed
-    {
-        return naufalfunction(...$args);
-    }
-
-    /**
      * Mengukur status stunting untuk calon siswa pendaftar ini.
      *
      * @param  float  $tinggiBadan  Tinggi badan dalam cm
@@ -233,6 +211,6 @@ class Pendaftaran extends Model
      */
     public function cekStunting(float $tinggiBadan, bool $asArray = false): mixed
     {
-        return naufalfunction($tinggiBadan, $this, null, $asArray);
+        return StuntingHelper::naufalfunction($tinggiBadan, $this, null, $asArray);
     }
 }

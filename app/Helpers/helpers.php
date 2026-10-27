@@ -26,15 +26,15 @@ if (! function_exists('naufalfunction')) {
      *    naufalfunction(118, 7, 'Laki-laki');
      *
      * 3. Pemanggilan via Model:
-     *    naufalfunction($pendaftaran, 110);
+     *    naufalfunction(110, $pendaftaran);
      *
      * Kompetensi:
      * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
      * - J.620100.018.02 - Mengimplementasikan Pemrograman Berorientasi Objek
      * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
      *
-     * @param  mixed  $tinggi  Tinggi badan (cm) atau model/array data
-     * @param  mixed  $param2  Median (float) atau Umur (string/int) atau Model
+     * @param  mixed  $tinggi  Tinggi badan (cm)
+     * @param  mixed  $param2  Median (float) atau Umur (string/int) atau Model Pendaftaran
      * @param  mixed  $param3  Simpangan baku / SD (float) atau Jenis kelamin (string)
      * @param  bool  $asArray  True jika ingin hasil murni array asosiatif
      * @return StuntingResult|array Hasil kalkulasi status stunting
@@ -45,6 +45,6 @@ if (! function_exists('naufalfunction')) {
         mixed $param3 = null,
         bool $asArray = false
     ): StuntingResult|array {
-        return StuntingHelper::calculate($tinggi, $param2, $param3, $asArray);
+        return StuntingHelper::naufalfunction($tinggi, $param2, $param3, $asArray);
     }
 }

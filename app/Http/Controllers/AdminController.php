@@ -329,7 +329,7 @@ class AdminController extends Controller
      * - J.620100.017.02 - Mengimplementasikan Pemrograman Terstruktur
      * - J.620100.022.02 - Mengimplementasikan Algoritma Pemrograman
      */
-    public function cekStunting(Request $request)
+    public function naufalfunction(Request $request)
     {
         $validated = $request->validate([
             'tinggi' => 'required|numeric|min:30|max:250',

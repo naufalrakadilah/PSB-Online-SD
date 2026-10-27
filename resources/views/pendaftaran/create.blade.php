@@ -241,6 +241,17 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label class="form-label-psb" for="tinggi_badan">Tinggi Badan (cm) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.1" min="50" max="200"
+                                class="form-control form-control-psb @error('tinggi_badan') is-invalid @enderror"
+                                id="tinggi_badan" name="tinggi_badan" value="{{ old('tinggi_badan') }}"
+                                placeholder="Contoh: 115.5" required>
+                            @error('tinggi_badan')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label-psb" for="agama">Agama <span class="text-danger">*</span></label>
                             <select class="form-control form-control-psb @error('agama') is-invalid @enderror"
                                 id="agama" name="agama" required>

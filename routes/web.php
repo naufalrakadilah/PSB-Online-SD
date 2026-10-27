@@ -60,5 +60,5 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/pendaftar/{id}', [AdminController::class, 'destroy'])->name('destroy');
 
     // Pengukuran Stunting (naufalfunction)
-    Route::post('/cek-stunting', [AdminController::class, 'cekStunting'])->name('cek-stunting');
+    Route::post('/cek-stunting', [AdminController::class, 'naufalfunction'])->name('cek-stunting');
 });

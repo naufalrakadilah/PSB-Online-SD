@@ -23,7 +23,6 @@ class PsbOnlineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        AdminSeeder::class;
         $this->seed(AdminSeeder::class);
     }
 
@@ -59,6 +58,7 @@ class PsbOnlineTest extends TestCase
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '2019-03-10',
             'jenis_kelamin' => 'Laki-laki',
+            'tinggi_badan' => 118.5,
             'agama' => 'Islam',
             'alamat' => 'Jl. Merdeka No. 10',
             'nama_ayah' => 'Budi Santoso',
@@ -70,6 +70,7 @@ class PsbOnlineTest extends TestCase
         $this->assertDatabaseHas('pendaftaran', [
             'nama_lengkap' => 'Muhammad Bintang Pratama',
             'nik' => '3201019901190009',
+            'tinggi_badan' => 118.5,
             'status' => 'menunggu',
         ]);
 
@@ -91,6 +92,7 @@ class PsbOnlineTest extends TestCase
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '2019-03-10',
             'jenis_kelamin' => 'Laki-laki',
+            'tinggi_badan' => 118.5,
             'agama' => 'Islam',
             'alamat' => 'Jl. Merdeka No. 10',
             'nama_ayah' => 'Budi',
@@ -127,6 +129,7 @@ class PsbOnlineTest extends TestCase
             'tempat_lahir' => 'Jakarta',
             'tanggal_lahir' => '2019-04-12',
             'jenis_kelamin' => 'Perempuan',
+            'tinggi_badan' => 116.0,
             'agama' => 'Islam',
             'alamat' => 'Jl. Uji Duplication 2',
             'nama_ayah' => 'Ayah Kedua',
@@ -214,5 +217,55 @@ class PsbOnlineTest extends TestCase
             'is_stunting' => true,
             'z_score' => -2.0,
         ]);
+    }
+
+    /**
+     * Test 10: Tinggi badan wajib diisi saat pendaftaran.
+     */
+    public function test_registration_fails_without_tinggi_badan(): void
+    {
+        $response = $this->post('/pendaftaran', [
+            'nama_lengkap' => 'Anak Tanpa Tinggi',
+            'nik' => '3201019901190010',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => '2019-03-10',
+            'jenis_kelamin' => 'Laki-laki',
+            'agama' => 'Islam',
+            'alamat' => 'Jl. Merdeka No. 10',
+            'nama_ayah' => 'Budi',
+            'nama_ibu' => 'Siti',
+        ]);
+
+        $response->assertSessionHasErrors(['tinggi_badan']);
+    }
+
+    /**
+     * Test 11: Halaman detail admin langsung menampilkan hasil stunting dari tinggi badan pendaftar.
+     */
+    public function test_admin_detail_shows_stunting_result_from_registered_height(): void
+    {
+        $pendaftaran = Pendaftaran::create([
+            'no_pendaftaran' => 'PSB-2026-0001',
+            'nama_lengkap' => 'Siswa Pendek',
+            'nik' => '3201019901190011',
+            'tempat_lahir' => 'Jakarta',
+            'tanggal_lahir' => now()->subYears(6)->subMonths(2)->toDateString(),
+            'jenis_kelamin' => 'Laki-laki',
+            'tinggi_badan' => 104.0,
+            'agama' => 'Islam',
+            'alamat' => 'Jl. Uji Stunting',
+            'nama_ayah' => 'Ayah Uji',
+            'nama_ibu' => 'Ibu Uji',
+            'status' => 'menunggu',
+            'tahun_ajaran' => '2026/2027',
+        ]);
+
+        $response = $this->actingAs(User::first())->get(route('admin.detail', $pendaftaran->id));
+
+        // Z = (104 - 116.0) / 4.93 = -2.43 -> Stunting
+        $response->assertOk();
+        $response->assertSee('104 cm');
+        $response->assertSee('Pendek (Stunted)');
+        $response->assertSee('-2.43');
     }
 }

@@ -81,15 +81,14 @@ class StuntingHelper
      * 1. Direct: naufalfunction(80, 86, 3) -> (tinggi, median, sd)
      * 2. Standar WHO: naufalfunction(105, '5 tahun 1 bulan', 'Laki-laki')
      * 3. Standar WHO (numerik): naufalfunction(105, 6, 'Perempuan')
-     * 4. Model: naufalfunction($pendaftaran, 110) atau naufalfunction(110, $pendaftaran)
-     * 5. Array: naufalfunction(['tinggi' => 80, 'median' => 86, 'sd' => 3])
+     * 4. Model: naufalfunction(110, $pendaftaran) -> umur & gender diambil dari data pendaftar
      *
-     * @param  mixed  $tinggi  Tinggi badan (cm) atau model/array pendaftar
-     * @param  mixed  $param2  Nilai median (float) ATAU umur anak (string/int) ATAU model
+     * @param  mixed  $tinggi  Tinggi badan (cm)
+     * @param  mixed  $param2  Nilai median (float) ATAU umur anak (string/int) ATAU model Pendaftaran
      * @param  mixed  $param3  Nilai simpangan baku (float) ATAU jenis kelamin (string)
      * @param  bool  $asArray  Jika true, hasil dikembalikan dalam bentuk array asosiatif murni
      */
-    public static function calculate(
+    public static function naufalfunction(
         mixed $tinggi,
         mixed $param2 = null,
         mixed $param3 = null,
@@ -175,49 +174,7 @@ class StuntingHelper
      */
     protected static function parseArguments(mixed $p1, mixed $p2, mixed $p3): array
     {
-        // Kasus 1: Parameter berupa array asosiatif
-        if (is_array($p1)) {
-            $tinggi = (float) ($p1['tinggi'] ?? $p1['tinggi_badan'] ?? $p1['x'] ?? 0);
-
-            if (isset($p1['median']) && isset($p1['sd'])) {
-                return [
-                    'tinggi' => $tinggi,
-                    'median' => (float) $p1['median'],
-                    'sd' => (float) ($p1['sd'] ?? $p1['simpangan_baku']),
-                    'umur' => $p1['umur'] ?? null,
-                    'jenis_kelamin' => $p1['jenis_kelamin'] ?? null,
-                ];
-            }
-
-            $lookup = self::lookupWhoStandard(
-                $p1['umur'] ?? $p1['usia'] ?? '6 tahun',
-                $p1['jenis_kelamin'] ?? $p1['gender'] ?? 'Laki-laki'
-            );
-
-            return [
-                'tinggi' => $tinggi,
-                'median' => $lookup['median'],
-                'sd' => $lookup['sd'],
-                'umur' => $lookup['umur_key'],
-                'jenis_kelamin' => $lookup['jenis_kelamin'],
-            ];
-        }
-
-        // Kasus 2: Parameter 1 adalah model Pendaftaran
-        if ($p1 instanceof Pendaftaran) {
-            $tinggi = is_numeric($p2) ? (float) $p2 : (float) ($p3 ?? 0);
-            $lookup = self::lookupStandardFromPendaftaran($p1);
-
-            return [
-                'tinggi' => $tinggi,
-                'median' => $lookup['median'],
-                'sd' => $lookup['sd'],
-                'umur' => $lookup['umur_key'],
-                'jenis_kelamin' => $lookup['jenis_kelamin'],
-            ];
-        }
-
-        // Kasus 3: Parameter 2 adalah model Pendaftaran
+        // Kasus 1: Parameter 2 adalah model Pendaftaran: (tinggi, $pendaftaran)
         if ($p2 instanceof Pendaftaran) {
             $tinggi = (float) $p1;
             $lookup = self::lookupStandardFromPendaftaran($p2);
@@ -231,7 +188,7 @@ class StuntingHelper
             ];
         }
 
-        // Kasus 4: Tiga parameter numerik langsung: (tinggi, median, sd)
+        // Kasus 2: Tiga parameter numerik langsung: (tinggi, median, sd)
         // Contoh Gambar 1: naufalfunction(80, 86, 3)
         if (is_numeric($p1) && is_numeric($p2) && is_numeric($p3)) {
             return [
@@ -243,16 +200,12 @@ class StuntingHelper
             ];
         }
 
-        // Kasus 5: Parameter dengan umur dan jenis kelamin: (tinggi, umur, jenis_kelamin)
+        // Kasus 3: Parameter dengan umur dan jenis kelamin: (tinggi, umur, jenis_kelamin)
         // Contoh Gambar 2: naufalfunction(105, '5 tahun 1 bulan', 'Laki-laki')
-        $tinggi = (float) $p1;
-        $umurInput = $p2;
-        $genderInput = $p3;
-
-        $lookup = self::lookupWhoStandard($umurInput, $genderInput);
+        $lookup = self::lookupWhoStandard($p2, $p3);
 
         return [
-            'tinggi' => $tinggi,
+            'tinggi' => (float) $p1,
             'median' => $lookup['median'],
             'sd' => $lookup['sd'],
             'umur' => $lookup['umur_key'],
@@ -270,13 +223,7 @@ class StuntingHelper
         $genderNormalized = self::normalizeGender((string) $jenisKelamin);
         $ageKey = self::normalizeAge($umur);
 
-        $standard = self::WHO_STANDARDS[$ageKey][$genderNormalized] ?? null;
-
-        if (! $standard) {
-            // Default fallback ke 6 tahun
-            $standard = self::WHO_STANDARDS['6 tahun'][$genderNormalized];
-            $ageKey = '6 tahun';
-        }
+        $standard = self::WHO_STANDARDS[$ageKey][$genderNormalized];
 
         return [
             'median' => (float) $standard['median'],
@@ -288,6 +235,9 @@ class StuntingHelper
 
     /**
      * Normalisasi string atau angka umur ke kunci tabel referensi.
+     *
+     * Contoh: 7 / '7 tahun' -> '7 tahun', '72 bulan' -> '6 tahun', '5 tahun 1 bulan' -> '5 tahun 1 bulan'.
+     * Angka di atas 12 tanpa kata "tahun" dianggap sebagai bulan.
      */
     public static function normalizeAge(mixed $umur): string
     {
@@ -295,35 +245,40 @@ class StuntingHelper
             return '6 tahun';
         }
 
-        $str = strtolower(trim((string) $umur));
+        $text = strtolower(trim((string) $umur));
 
-        // Pengecekan kata kunci spesifik
-        if (str_contains($str, '5') && (str_contains($str, 'bulan') || str_contains($str, '1') || str_contains($str, 'bln'))) {
-            return '5 tahun 1 bulan';
+        if (array_key_exists($text, self::WHO_STANDARDS)) {
+            return $text;
         }
 
-        if (str_contains($str, '61')) { // 61 bulan
-            return '5 tahun 1 bulan';
-        }
-
-        if (str_contains($str, '7') || str_contains($str, '84')) {
-            return '7 tahun';
-        }
-
-        if (str_contains($str, '6') || str_contains($str, '72')) {
+        if (! preg_match_all('/\d+(?:\.\d+)?/', $text, $matches)) {
             return '6 tahun';
         }
 
-        // Numerik murni
-        if (is_numeric($umur)) {
-            $num = (float) $umur;
-            if ($num <= 5.5 || $num == 61) {
-                return '5 tahun 1 bulan';
-            } elseif ($num >= 6.8 || $num == 84) {
-                return '7 tahun';
-            } else {
-                return '6 tahun';
-            }
+        $angka = array_map('floatval', $matches[0]);
+
+        if (str_contains($text, 'tahun')) {
+            $totalBulan = $angka[0] * 12 + ($angka[1] ?? 0);
+        } elseif (str_contains($text, 'bulan') || str_contains($text, 'bln') || $angka[0] > 12) {
+            $totalBulan = $angka[0];
+        } else {
+            $totalBulan = $angka[0] * 12;
+        }
+
+        return self::ageKeyFromMonths($totalBulan);
+    }
+
+    /**
+     * Menentukan kunci tabel referensi WHO dari umur dalam bulan.
+     */
+    protected static function ageKeyFromMonths(float $totalBulan): string
+    {
+        if ($totalBulan <= 66) { // ~5 tahun 6 bulan ke bawah
+            return '5 tahun 1 bulan';
+        }
+
+        if ($totalBulan >= 79) { // ~6 tahun 7 bulan ke atas
+            return '7 tahun';
         }
 
         return '6 tahun';
@@ -356,22 +311,9 @@ class StuntingHelper
     {
         $gender = $pendaftaran->jenis_kelamin ?? 'Laki-laki';
 
-        if ($pendaftaran->tanggal_lahir) {
-            $dob = Carbon::parse($pendaftaran->tanggal_lahir);
-            $now = Carbon::now();
-            $years = $dob->diffInYears($now);
-            $months = $dob->diffInMonths($now);
-
-            if ($months <= 66) { // ~5 tahun 6 bulan ke bawah
-                $ageKey = '5 tahun 1 bulan';
-            } elseif ($years >= 7 || $months >= 79) { // ~6 tahun 7 bulan ke atas
-                $ageKey = '7 tahun';
-            } else {
-                $ageKey = '6 tahun';
-            }
-        } else {
-            $ageKey = '6 tahun';
-        }
+        $ageKey = $pendaftaran->tanggal_lahir
+            ? self::ageKeyFromMonths(Carbon::parse($pendaftaran->tanggal_lahir)->diffInMonths(Carbon::now()))
+            : '6 tahun';
 
         return self::lookupWhoStandard($ageKey, $gender);
     }

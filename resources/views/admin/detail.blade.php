@@ -87,15 +87,16 @@
                     <small class="text-muted d-block">Tempat, Tanggal Lahir</small>
                     <span class="fw-semibold">
                         {{ $pendaftaran->tempat_lahir }}, {{ \Carbon\Carbon::parse($pendaftaran->tanggal_lahir)->translatedFormat('d F Y') }}
-                        @php
-                            $usiaTahun = \Carbon\Carbon::parse($pendaftaran->tanggal_lahir)->age;
-                        @endphp
-                        <span class="badge bg-secondary-subtle text-dark ms-1">Usia: {{ $usiaTahun }} tahun</span>
+                        <span class="badge bg-secondary-subtle text-dark ms-1">Usia: {{ $pendaftaran->umur }} tahun</span>
                     </span>
                 </div>
                 <div class="col-sm-6">
                     <small class="text-muted d-block">Jenis Kelamin / Agama</small>
                     <span class="fw-semibold">{{ $pendaftaran->jenis_kelamin }} / {{ $pendaftaran->agama }}</span>
+                </div>
+                <div class="col-sm-6">
+                    <small class="text-muted d-block">Tinggi Badan</small>
+                    <span class="fw-semibold">{{ $pendaftaran->tinggi_badan ? $pendaftaran->tinggi_badan.' cm' : '-' }}</span>
                 </div>
                 <div class="col-sm-12">
                     <small class="text-muted d-block">Alamat Lengkap</small>
@@ -110,13 +111,10 @@
 
         {{-- PEMERIKSAAN STUNTING SISWA (naufalfunction) --}}
         @php
-            $defaultAgeCategory = match(true) {
-                $usiaTahun <= 5 => '5 tahun 1 bulan',
-                $usiaTahun >= 7 => '7 tahun',
-                default => '6 tahun',
-            };
-            $whoStandards = \App\Helpers\StuntingHelper::lookupWhoStandard($defaultAgeCategory, $pendaftaran->jenis_kelamin);
-            $sessionResult = session('stunting_result');
+            $usiaBulan = (int) \Carbon\Carbon::parse($pendaftaran->tanggal_lahir)->diffInMonths(now());
+            $defaultAgeCategory = \App\Helpers\StuntingHelper::normalizeAge($usiaBulan.' bulan');
+            $sessionResult = session('stunting_result')
+                ?? ($pendaftaran->tinggi_badan ? $pendaftaran->cekStunting($pendaftaran->tinggi_badan, true) : null);
         @endphp
         <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">

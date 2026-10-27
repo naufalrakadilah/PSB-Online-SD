@@ -183,11 +183,19 @@ class NaufalFunctionTest extends TestCase
             'tanggal_lahir' => '2020-04-15',
         ]);
 
-        $staticCall = Pendaftaran::naufalfunction(80, 86, 3);
-        $this->assertEquals('Stunting', $staticCall->status);
-
         $methodCall = $pendaftaran->cekStunting(116.0);
         $this->assertInstanceOf(StuntingResult::class, $methodCall);
+    }
+
+    /**
+     * Menguji input umur dalam bulan maupun tahun dipetakan ke kategori WHO yang benar.
+     */
+    public function test_age_input_in_months_or_years_maps_to_correct_who_category(): void
+    {
+        $this->assertEquals('6 tahun', naufalfunction(116, '72 bulan', 'Laki-laki')->umur);
+        $this->assertEquals('5 tahun 1 bulan', naufalfunction(110, '5 tahun', 'Laki-laki')->umur);
+        $this->assertEquals('5 tahun 1 bulan', naufalfunction(110, 61, 'Laki-laki')->umur);
+        $this->assertEquals('7 tahun', naufalfunction(121, 7, 'Laki-laki')->umur);
     }
 
     /**
