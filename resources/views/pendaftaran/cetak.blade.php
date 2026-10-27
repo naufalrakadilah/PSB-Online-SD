@@ -29,6 +29,21 @@
         .status-box { text-align: center; background: #FEF3C7; border: 1px solid #FDE68A; padding: 8px; border-radius: 6px; margin: 16px 0; }
         .status-box .status-label { font-weight: bold; color: #92400E; text-transform: uppercase; }
 
+        .stunting-box { background: #FEF2F2; border: 1px solid #FCA5A5; padding: 10px 12px; border-radius: 6px; margin: 14px 0; line-height: 1.5; }
+        .stunting-box .stunting-title { font-weight: bold; color: #B91C1C; text-transform: uppercase; margin-bottom: 4px; }
+
+        .page-break { page-break-before: always; }
+        .kop { text-align: center; border-bottom: 3px double #1E293B; padding-bottom: 10px; margin-bottom: 16px; }
+        .kop h1 { font-size: 15px; font-weight: bold; text-transform: uppercase; }
+        .kop p { font-size: 10px; color: #475569; margin-top: 2px; }
+        .surat { font-size: 11px; line-height: 1.6; }
+        .surat p { margin-bottom: 8px; text-align: justify; }
+        .surat-meta td { padding: 1px 0; }
+        .surat-meta td.label { width: 70px; color: #1E293B; }
+        .surat .data td.label { width: 150px; color: #1E293B; }
+        .ttd { width: 230px; margin-left: auto; margin-top: 24px; text-align: center; }
+        .ttd .nama { margin-top: 60px; font-weight: bold; text-decoration: underline; }
+
         .footer { text-align: center; margin-top: 18px; padding-top: 12px; border-top: 1px solid #E2E8F0; color: #94A3B8; font-size: 9px; line-height: 1.6; }
     </style>
 </head>
@@ -79,10 +94,84 @@
         <div class="status-label">Status: {{ $pendaftaran->status_badge['label'] }}</div>
     </div>
 
+    @if($hasilStunting?->is_stunting)
+        <div class="stunting-box">
+            <div class="stunting-title">Pemberitahuan untuk Orang Tua / Wali</div>
+            Berdasarkan tinggi badan yang diisi saat pendaftaran ({{ number_format($hasilStunting->tinggi_badan, 1, ',', '.') }} cm), ananda
+            <strong>{{ $pendaftaran->nama_lengkap }}</strong> terindikasi <strong>stunting</strong> dengan kategori
+            {{ $hasilStunting->kategori }} dan Z-score {{ number_format($hasilStunting->z_score, 2, ',', '.') }} SD.
+            Mohon bawa ananda ke puskesmas terdekat dengan membawa <strong>surat rujukan di halaman berikutnya</strong>
+            untuk pengukuran ulang dan pemeriksaan lebih lanjut.
+        </div>
+    @endif
+
     <div class="footer">
         Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}<br>
         Dokumen ini digenerate secara otomatis oleh sistem PSB Online SD Negeri Nusantara.<br>
         Harap simpan nomor pendaftaran untuk keperluan pengecekan status.
     </div>
+
+    @if($hasilStunting?->is_stunting)
+        <div class="page-break"></div>
+
+        <div class="kop">
+            <h1>SD Negeri Nusantara</h1>
+            <p>Panitia Penerimaan Peserta Didik Baru Tahun Ajaran {{ $pendaftaran->tahun_ajaran }}</p>
+        </div>
+
+        <div class="surat">
+            <table class="surat-meta">
+                <tr><td class="label">Nomor</td><td class="colon">:</td><td>{{ $pendaftaran->no_pendaftaran }}/RUJ/SDN-NUS/{{ now()->year }}</td></tr>
+                <tr><td class="label">Lampiran</td><td class="colon">:</td><td>-</td></tr>
+                <tr><td class="label">Perihal</td><td class="colon">:</td><td><strong>Rujukan Pemeriksaan Stunting</strong></td></tr>
+            </table>
+
+            <p style="margin-top: 14px;">
+                Kepada Yth.<br>
+                <strong>Kepala Puskesmas</strong><br>
+                di wilayah tempat tinggal siswa
+            </p>
+
+            <p>Dengan hormat,</p>
+
+            <p>
+                Dalam rangka penerimaan peserta didik baru, panitia telah melakukan pemeriksaan status gizi berdasarkan
+                standar pertumbuhan WHO 2007 (tinggi badan menurut umur). Bersama ini kami merujuk calon peserta didik berikut:
+            </p>
+
+            <table class="data">
+                <tr><td class="label">Nama Lengkap</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_lengkap }}</td></tr>
+                <tr><td class="label">NIK</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nik }}</td></tr>
+                <tr><td class="label">Tempat, Tanggal Lahir</td><td class="colon">:</td><td class="value">{{ $pendaftaran->tempat_lahir }}, {{ $pendaftaran->tanggal_lahir->translatedFormat('d F Y') }} ({{ $pendaftaran->umur }} tahun)</td></tr>
+                <tr><td class="label">Jenis Kelamin</td><td class="colon">:</td><td class="value">{{ $pendaftaran->jenis_kelamin }}</td></tr>
+                <tr><td class="label">Alamat</td><td class="colon">:</td><td class="value">{{ $pendaftaran->alamat }}</td></tr>
+                <tr><td class="label">Nama Orang Tua</td><td class="colon">:</td><td class="value">{{ $pendaftaran->nama_ayah }} / {{ $pendaftaran->nama_ibu }}</td></tr>
+            </table>
+
+            <p style="margin-top: 10px;">dengan hasil pemeriksaan sebagai berikut:</p>
+
+            <table class="data">
+                <tr><td class="label">Tinggi Badan</td><td class="colon">:</td><td class="value">{{ number_format($hasilStunting->tinggi_badan, 1, ',', '.') }} cm</td></tr>
+                <tr><td class="label">Standar WHO (median)</td><td class="colon">:</td><td class="value">{{ number_format($hasilStunting->median, 1, ',', '.') }} cm, SD {{ number_format($hasilStunting->simpangan_baku, 2, ',', '.') }} cm (kelompok umur {{ $hasilStunting->umur }}, {{ $hasilStunting->jenis_kelamin }})</td></tr>
+                <tr><td class="label">Z-score TB/U</td><td class="colon">:</td><td class="value">{{ number_format($hasilStunting->z_score, 2, ',', '.') }} SD</td></tr>
+                <tr><td class="label">Kategori</td><td class="colon">:</td><td class="value">{{ $hasilStunting->kategori }} &mdash; {{ $hasilStunting->status }}</td></tr>
+            </table>
+
+            <p style="margin-top: 10px;">
+                Tinggi badan di atas adalah data yang dilaporkan orang tua saat pendaftaran. Oleh karena itu, kami mohon
+                kesediaan Bapak/Ibu untuk melakukan pengukuran ulang, pemeriksaan status gizi, dan penanganan lebih lanjut
+                sesuai prosedur yang berlaku.
+            </p>
+
+            <p>Atas perhatian dan kerja samanya, kami ucapkan terima kasih.</p>
+
+            <div class="ttd">
+                Nusantara, {{ now()->translatedFormat('d F Y') }}<br>
+                Ketua Panitia PPDB<br>
+                SD Negeri Nusantara
+                <div class="nama">(..............................)</div>
+            </div>
+        </div>
+    @endif
 </body>
 </html>

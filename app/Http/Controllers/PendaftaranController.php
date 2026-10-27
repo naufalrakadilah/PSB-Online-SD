@@ -130,8 +130,9 @@ class PendaftaranController extends Controller
     public function cetak(string $noPendaftaran): Response
     {
         $pendaftaran = Pendaftaran::where('no_pendaftaran', $noPendaftaran)->firstOrFail();
+        $hasilStunting = $pendaftaran->tinggi_badan ? $pendaftaran->cekStunting($pendaftaran->tinggi_badan) : null;
 
-        return Pdf::loadView('pendaftaran.cetak', compact('pendaftaran'))
+        return Pdf::loadView('pendaftaran.cetak', compact('pendaftaran', 'hasilStunting'))
             ->setPaper('a4', 'portrait')
             ->download("Bukti-Pendaftaran-{$pendaftaran->no_pendaftaran}.pdf");
     }

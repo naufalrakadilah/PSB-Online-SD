@@ -311,6 +311,38 @@ class PsbOnlineTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
+    public function test_bukti_pendaftaran_adds_referral_page_only_for_stunting_child(): void
+    {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+        $this->post('/pendaftaran', $this->validRegistrationData(['nik' => '3201019901190001', 'tinggi_badan' => 104]));
+        $this->post('/pendaftaran', $this->validRegistrationData(['nik' => '3201019901190002', 'tinggi_badan' => 122]));
+        $anakStunting = Pendaftaran::where('nik', '3201019901190001')->firstOrFail();
+        $anakNormal = Pendaftaran::where('nik', '3201019901190002')->firstOrFail();
+
+        $pdfStunting = $this->get(route('pendaftaran.cetak', $anakStunting->no_pendaftaran))->getContent();
+        $pdfNormal = $this->get(route('pendaftaran.cetak', $anakNormal->no_pendaftaran))->getContent();
+
+        $this->assertSame(2, preg_match_all('#/Type\s*/Page(?!s)#', $pdfStunting));
+        $this->assertSame(1, preg_match_all('#/Type\s*/Page(?!s)#', $pdfNormal));
+    }
+
+    public function test_bukti_pendaftaran_template_shows_referral_letter_for_stunting_child(): void
+    {
+        $this->travelTo(self::TANGGAL_PENDAFTARAN);
+        $this->post('/pendaftaran', $this->validRegistrationData(['tinggi_badan' => 104]));
+        $pendaftaran = Pendaftaran::where('nik', '3201019901190009')->firstOrFail();
+
+        $view = $this->view('pendaftaran.cetak', [
+            'pendaftaran' => $pendaftaran,
+            'hasilStunting' => $pendaftaran->cekStunting($pendaftaran->tinggi_badan),
+        ]);
+
+        $view->assertSee('Pemberitahuan untuk Orang Tua / Wali');
+        $view->assertSee('Rujukan Pemeriksaan Stunting');
+        $view->assertSee('Kepala Puskesmas');
+        $view->assertSee('-3,35 SD');
+    }
+
     public function test_bukti_pendaftaran_returns_not_found_for_unknown_number(): void
     {
         $this->get(route('pendaftaran.cetak', 'PSB-2026-10-9999'))->assertNotFound();
